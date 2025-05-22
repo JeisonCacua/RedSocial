@@ -5,6 +5,7 @@ import {
   Route,
   useNavigate,
   useLocation,
+  Outlet,                        // ← añadido
 } from "react-router-dom";
 import Login from "./components/Login";
 import Register from "./components/Register";
@@ -61,7 +62,7 @@ const styles = {
   bannerContainer: {
     width: "100%",
     maxWidth: 1200,
-    padding: "0 30px 20px 30px", // solo algo de padding horizontal y espacio abajo
+    padding: "0 30px 20px 30px",
     boxSizing: "border-box",
     marginBottom: 30,
     color: "#000",
@@ -134,7 +135,6 @@ function TopHeader() {
   );
 }
 
-// Nuevo componente Banner con el texto debajo del header
 function Banner() {
   return (
     <section style={styles.bannerContainer}>
@@ -148,22 +148,32 @@ function Banner() {
   );
 }
 
+// Nuevo layout para Login y Register
+function AuthLayout() {
+  return (
+    <div style={styles.appContainer}>
+      <TopHeader />
+      <Banner />
+      <div style={styles.loginWrapper}>
+        <Outlet />
+      </div>
+    </div>
+  );
+}
+
 export default function App() {
   return (
     <Router>
-      <div style={styles.appContainer}>
-        <TopHeader />
-        <Banner />
-        <div style={styles.loginWrapper}>
-          <div style={styles.content}>
-            <Routes>
-              <Route path="/" element={<Login />} />
-              <Route path="/register" element={<Register />} />
-              <Route path="/menu" element={<Menu />} />
-            </Routes>
-          </div>
-        </div>
-      </div>
+      <Routes>
+        {/* Rutas de autenticación dentro de AuthLayout */}
+        <Route element={<AuthLayout />}>
+          <Route path="/" element={<Login />} />
+          <Route path="/register" element={<Register />} />
+        </Route>
+
+        {/* Ruta a Menu sin el wrapper de AuthLayout */}
+        <Route path="/menu" element={<Menu />} />
+      </Routes>
     </Router>
   );
 }

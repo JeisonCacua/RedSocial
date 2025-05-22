@@ -1,65 +1,81 @@
 import React, { useState } from "react";
 
-const styles = {
-  container: {
-    border: "2px solid #a7b36f",
-    borderRadius: 12,
-    padding: 15,
-    marginBottom: 20,
-    backgroundColor: "#f9fbd4",
-    display: "flex",
-    alignItems: "center",
-  },
-  avatar: {
-    width: 40,
-    height: 40,
-    borderRadius: "50%",
-    backgroundColor: "#556b2f",
-    marginRight: 12,
-  },
-  input: {
-    flexGrow: 1,
-    borderRadius: 12,
-    border: "1px solid #a7b36f",
-    padding: "10px 15px",
-    fontSize: 14,
-    outline: "none",
-  },
-  button: {
-    backgroundColor: "#556b2f",
-    color: "white",
-    border: "none",
-    marginLeft: 10,
-    padding: "8px 15px",
-    borderRadius: 8,
-    cursor: "pointer",
-    fontWeight: "600",
-  },
-};
-
 export default function SubirPublicacion() {
   const [texto, setTexto] = useState("");
 
   const publicar = () => {
-    if (texto.trim()) {
-      alert("Publicación enviada: " + texto);
-      setTexto("");
-    }
+    if (!texto.trim()) return;
+    // aquí tu lógica real de publicación...
+    alert("Publicación enviada: " + texto);
+    setTexto("");
   };
 
   return (
-    <div style={styles.container}>
-      <div style={styles.avatar}></div>
-      <input
-        type="text"
-        placeholder="¿En qué piensas?"
-        value={texto}
-        onChange={(e) => setTexto(e.target.value)}
-        style={styles.input}
-      />
-      <button onClick={publicar} style={styles.button}>
-        Publicar
-      </button>
+    <div
+      style={{
+        backgroundColor: "#f9fbd4",
+        border: "1px solid #a7b36f",
+        borderRadius: 12,
+        padding: 15,
+        marginBottom: 20,
+        color: "#37430b",
+      }}
+    >
+      {/* línea de input */}
+      <div style={{ display: "flex", alignItems: "center", marginBottom: 12 }}>
+        <div
+          style={{
+            width: 16,
+            height: 16,
+            borderRadius: "50%",
+            backgroundColor: "#556b2f",
+            marginRight: 10,
+          }}
+        />
+        <input
+          type="text"
+          placeholder="¿En que piensas?"
+          value={texto}
+          onChange={(e) => setTexto(e.target.value)}
+          style={{
+            flex: 1,
+            border: "none",
+            outline: "none",
+            backgroundColor: "transparent",
+            fontSize: 14,
+          }}
+        />
+      </div>
+
+      {/* botones Foto/Video y Publicar */}
+      <div style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}>
+        <button
+          style={{
+            backgroundColor: "#fff",
+            border: "1px solid #a7b36f",
+            borderRadius: 6,
+            padding: "6px 12px",
+            cursor: "pointer",
+            fontSize: 13,
+          }}
+        >
+          📷 Foto/Video
+        </button>
+        <button
+          onClick={publicar}
+          style={{
+            backgroundColor: "#556b2f",
+            color: "#fff",
+            border: "none",
+            borderRadius: 6,
+            padding: "6px 16px",
+            cursor: "pointer",
+            fontSize: 13,
+          }}
+        >
+          Publicar
+        </button>
+      </div>
     </div>
   );
 }

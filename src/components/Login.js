@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState } from "react"; 
 import { useNavigate } from "react-router-dom";
 
 export default function Login() {
@@ -17,7 +17,7 @@ export default function Login() {
     setLoading(true);
 
     try {
-      const response = await fetch("http://192.168.1.6:3001/login", {
+      const response = await fetch("http://192.168.101.5:3001/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ correo, contraseña: password }),
@@ -100,7 +100,21 @@ export default function Login() {
         {loading ? "Cargando..." : "INICIAR SESIÓN"}
       </button>
 
-      <p>¿No tienes una cuenta?</p>
+      {/* Aquí añadimos el texto + botón Regístrate */}
+      <p style={{ marginTop: 16, color: "#a7b36f", fontSize: 14 }}>
+        ¿No tienes una cuenta?{" "}
+        <span
+          onClick={() => navigate("/register")}
+          style={{
+            cursor: "pointer",
+            textDecoration: "underline",
+            fontWeight: "600",
+            color: "#8ca347",
+          }}
+        >
+          Regístrate
+        </span>
+      </p>
 
       {errorMessage && (
         <p style={{ color: "red", marginTop: 10 }}>{errorMessage}</p>
