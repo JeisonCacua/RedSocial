@@ -1,13 +1,52 @@
 import React, { useState } from "react";
 
-export default function SubirPublicacion() {
+export default function SubirPublicacion({ userId, onNuevaPublicacion }) {
   const [texto, setTexto] = useState("");
+  const [imagenBase64, setImagenBase64] = useState(null);
+  const [loading, setLoading] = useState(false);
 
-  const publicar = () => {
-    if (!texto.trim()) return;
-    // aquí tu lógica real de publicación...
-    alert("Publicación enviada: " + texto);
-    setTexto("");
+  // Convierte archivo a base64
+  const manejarArchivo = (e) => {
+    const archivo = e.target.files[0];
+    if (!archivo) return;
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setImagenBase64(reader.result);
+    };
+    reader.readAsDataURL(archivo);
+  };
+
+  const publicar = async () => {
+    if (!texto.trim() && !imagenBase64)
+      return alert("Escribe algo o sube una foto");
+
+    setLoading(true);
+    try {
+      const response = await fetch("http://192.168.1.6:3001/publicaciones", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId,
+          contenido: texto,
+          imagen: imagenBase64,
+        }),
+      });
+
+      if (!response.ok) {
+        alert("Error al publicar");
+        setLoading(false);
+        return;
+      }
+
+      const nuevaPub = await response.json();
+      setTexto("");
+      setImagenBase64(null);
+      if (onNuevaPublicacion) onNuevaPublicacion(nuevaPub);
+    } catch (error) {
+      alert("Error de conexión");
+    }
+    setLoading(false);
   };
 
   return (
@@ -21,7 +60,6 @@ export default function SubirPublicacion() {
         color: "#37430b",
       }}
     >
-      {/* línea de input */}
       <div style={{ display: "flex", alignItems: "center", marginBottom: 12 }}>
         <div
           style={{
@@ -34,7 +72,7 @@ export default function SubirPublicacion() {
         />
         <input
           type="text"
-          placeholder="¿En que piensas?"
+          placeholder="¿En qué piensas?"
           value={texto}
           onChange={(e) => setTexto(e.target.value)}
           style={{
@@ -44,12 +82,22 @@ export default function SubirPublicacion() {
             backgroundColor: "transparent",
             fontSize: 14,
           }}
+          disabled={loading}
         />
       </div>
 
-      {/* botones Foto/Video y Publicar */}
+      {/* Selector archivo oculto */}
+      <input
+        type="file"
+        accept="image/*"
+        id="inputFile"
+        style={{ display: "none" }}
+        onChange={manejarArchivo}
+      />
+
       <div style={{ display: "flex", justifyContent: "flex-end", gap: 8 }}>
-        <button
+        <label
+          htmlFor="inputFile"
           style={{
             backgroundColor: "#fff",
             border: "1px solid #a7b36f",
@@ -57,10 +105,11 @@ export default function SubirPublicacion() {
             padding: "6px 12px",
             cursor: "pointer",
             fontSize: 13,
+            userSelect: "none",
           }}
         >
-          📷 Foto/Video
-        </button>
+          📷 Foto
+        </label>
         <button
           onClick={publicar}
           style={{
@@ -72,10 +121,22 @@ export default function SubirPublicacion() {
             cursor: "pointer",
             fontSize: 13,
           }}
+          disabled={loading}
         >
-          Publicar
+          {loading ? "Publicando..." : "Publicar"}
         </button>
       </div>
+
+      {/* Vista previa imagen */}
+      {imagenBase64 && (
+        <div style={{ marginTop: 10 }}>
+          <img
+            src={imagenBase64}
+            alt="Vista previa"
+            style={{ maxWidth: "100%", borderRadius: 8 }}
+          />
+        </div>
+      )}
     </div>
   );
 }

@@ -1,8 +1,9 @@
-import React from "react"; 
+// src/screens/Menu.js
+import React from "react";
 import MostrarPerfil from "../components/mostrarPerfil";
+import Perfil from "../components/Perfil";
 import SubirPublicacion from "../components/SubirPublicacion";
 import Publicaciones from "../components/Publicaciones";
-import Perfil from "../components/Perfil";
 
 const HEADER_SPACE = 80; // píxeles reservados arriba
 
@@ -11,7 +12,7 @@ const styles = {
     display: "flex",
     width: "100vw",
     height: `calc(100vh - ${HEADER_SPACE}px)`,
-    marginTop: HEADER_SPACE,              // espacio superior libre
+    marginTop: HEADER_SPACE,
     fontFamily: "Arial, sans-serif",
     backgroundColor: "#f0f2d0",
     borderRadius: "0 0 12px 12px",
@@ -38,15 +39,17 @@ const styles = {
 };
 
 export default function Menu() {
+  const userId = localStorage.getItem("userId");
+
   return (
     <div style={styles.container}>
       <aside style={styles.sidebar}>
-        <MostrarPerfil />
-        <Perfil />
+        <MostrarPerfil userId={userId} />
+        <Perfil userId={userId} />
       </aside>
       <main style={styles.mainContent}>
-        <SubirPublicacion />
-        <Publicaciones />
+        <SubirPublicacion userId={userId} />
+        <Publicaciones userId={userId} />
       </main>
     </div>
   );

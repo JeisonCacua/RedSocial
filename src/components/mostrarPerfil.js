@@ -1,6 +1,31 @@
-import React from "react";
+// src/components/mostrarPerfil.js
+import React, { useEffect, useState } from "react";
 
-export default function MostrarPerfil() {
+export default function MostrarPerfil({ userId }) {
+  const [data, setData] = useState({ user: null, perfil: null });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    if (!userId) {
+      setLoading(false);
+      return;
+    }
+    fetch(`http://192.168.1.6:3001/perfil/${userId}`)
+      .then((res) => {
+        if (!res.ok) throw new Error("Error al cargar perfil");
+        return res.json();
+      })
+      .then(({ user, perfil }) => setData({ user, perfil }))
+      .catch((err) => console.error(err))
+      .finally(() => setLoading(false));
+  }, [userId]);
+
+  if (loading) return <div>Cargando perfil.</div>;
+  if (!data.user || !data.perfil) return <div>Perfil no encontrado</div>;
+
+  const { user, perfil } = data;
+  const esNatural = user.tipo_usuario === "Persona Natural";
+
   return (
     <div
       style={{
@@ -12,12 +37,10 @@ export default function MostrarPerfil() {
         marginBottom: 20,
       }}
     >
-      {/* cabecera verde */}
       <div style={{ height: 80, backgroundColor: "#556b2f" }} />
 
-      {/* avatar superpuesto */}
       <img
-        src="https://avatars.githubusercontent.com/u/12345678?v=4"
+        src={esNatural ? perfil.foto_personal : perfil.foto_logo_empresa}
         alt="Perfil"
         style={{
           width: 70,
@@ -32,13 +55,28 @@ export default function MostrarPerfil() {
         }}
       />
 
-      {/* info de usuario */}
-      <div style={{ padding: "50px 15px 15px", textAlign: "center", color: "#37430b" }}>
+      <div
+        style={{
+          padding: "50px 15px 15px",
+          textAlign: "center",
+          color: "#37430b",
+        }}
+      >
         <div style={{ fontWeight: 700, fontSize: 18 }}>
-          Bryan Cortine <span style={{ color: "#d4a017" }}>♦️</span>
+          {esNatural ? user.nombre : perfil.nombreEmpresa}{" "}
+          {esNatural && <span style={{ color: "#d4a017" }}>♦️</span>}
         </div>
-        <div style={{ fontSize: 14, marginTop: 4 }}>Estudiante de Universidad Simón Bolívar</div>
-        <div style={{ fontSize: 12, marginTop: 6 }}>23 años | Cúcuta, Norte de Santander</div>
+
+        {esNatural && (
+          <>
+            <div style={{ fontSize: 14, marginTop: 4 }}>
+              {perfil.estudio_o_trabajo_actual}
+            </div>
+            <div style={{ fontSize: 12, marginTop: 6 }}>
+              {perfil.edad} años | {perfil.ciudad}, {perfil.departamento}
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

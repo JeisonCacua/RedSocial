@@ -11,6 +11,8 @@ export default function Register() {
   const [successMessage, setSuccessMessage] = useState("");
   const navigate = useNavigate();
 
+  const tiposPermitidos = ["Persona Natural", "Empresa"];
+
   const handleRegister = async () => {
     setErrorMessage("");
     setSuccessMessage("");
@@ -19,13 +21,19 @@ export default function Register() {
       setErrorMessage("Por favor, completa todos los campos");
       return;
     }
+
+    if (!tiposPermitidos.includes(tipoUsuario)) {
+      setErrorMessage("Seleccione un tipo de usuario válido");
+      return;
+    }
+
     if (password !== confirmarPassword) {
       setErrorMessage("Las contraseñas no coinciden");
       return;
     }
 
     try {
-      const response = await fetch("http://192.168.101.5:3001/register", {
+      const response = await fetch("http://192.168.1.6:3001/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -48,7 +56,7 @@ export default function Register() {
         setPassword("");
         setConfirmarPassword("");
         setTimeout(() => {
-          navigate("/"); // o la ruta que uses para login
+          navigate("/"); // ruta para login
         }, 1500);
       } else {
         setErrorMessage(data.message);
@@ -66,107 +74,69 @@ export default function Register() {
         padding: 20,
         color: "#c0c8a4",
         fontFamily: "Arial, sans-serif",
+        backgroundColor: "#2f3a13",
+        borderRadius: 10,
+        boxShadow: "0 0 10px rgba(0,0,0,0.5)",
       }}
     >
-      <p>Nombre y Apellido (Completos):</p>
+      <label style={{ marginBottom: 6, display: "block", fontWeight: "600" }}>
+        Nombre y Apellido (Completos):
+      </label>
       <input
         type="text"
         placeholder="Nombre completo"
         value={nombre}
         onChange={(e) => setNombre(e.target.value)}
-        style={{
-          width: "100%",
-          marginBottom: 10,
-          padding: 8,
-          borderRadius: 4,
-          border: "none",
-          backgroundColor: "#4a5336",
-          color: "#c0c8a4",
-        }}
+        style={inputStyle}
       />
 
-      <p>Correo electrónico:</p>
+      <label style={{ marginBottom: 6, display: "block", fontWeight: "600" }}>
+        Correo electrónico:
+      </label>
       <input
         type="email"
         placeholder="Email"
         value={correo}
         onChange={(e) => setCorreo(e.target.value)}
-        style={{
-          width: "100%",
-          marginBottom: 10,
-          padding: 8,
-          borderRadius: 4,
-          border: "none",
-          backgroundColor: "#4a5336",
-          color: "#c0c8a4",
-        }}
+        style={inputStyle}
       />
 
-      <p>Persona o Empresa:</p>
-      <input
-        type="text"
-        placeholder="Tipo de usuario"
+      <label style={{ marginBottom: 6, display: "block", fontWeight: "600" }}>
+        Tipo de usuario:
+      </label>
+      <select
         value={tipoUsuario}
         onChange={(e) => setTipoUsuario(e.target.value)}
-        style={{
-          width: "100%",
-          marginBottom: 10,
-          padding: 8,
-          borderRadius: 4,
-          border: "none",
-          backgroundColor: "#4a5336",
-          color: "#c0c8a4",
-        }}
-      />
+        style={inputStyle}
+      >
+        <option value="">-- Seleccione --</option>
+        <option value="Persona Natural">Persona Natural</option>
+        <option value="Empresa">Empresa</option>
+      </select>
 
-      <p>Contraseña:</p>
+      <label style={{ marginBottom: 6, display: "block", fontWeight: "600" }}>
+        Contraseña:
+      </label>
       <input
         type="password"
         placeholder="Contraseña"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
-        style={{
-          width: "100%",
-          marginBottom: 10,
-          padding: 8,
-          borderRadius: 4,
-          border: "none",
-          backgroundColor: "#4a5336",
-          color: "#c0c8a4",
-        }}
+        style={inputStyle}
       />
 
-      <p>Confirmar Contraseña:</p>
+      <label style={{ marginBottom: 6, display: "block", fontWeight: "600" }}>
+        Confirmar Contraseña:
+      </label>
       <input
         type="password"
         placeholder="Confirma Contraseña"
         value={confirmarPassword}
         onChange={(e) => setConfirmarPassword(e.target.value)}
-        style={{
-          width: "100%",
-          marginBottom: 10,
-          padding: 8,
-          borderRadius: 4,
-          border: "none",
-          backgroundColor: "#4a5336",
-          color: "#c0c8a4",
-        }}
+        style={inputStyle}
       />
 
-      <button
-        onClick={handleRegister}
-        style={{
-          width: "100%",
-          padding: 12,
-          backgroundColor: "#1f2907",
-          color: "#c0c8a4",
-          fontWeight: "700",
-          borderRadius: 8,
-          border: "none",
-          cursor: "pointer",
-          fontSize: 16,
-        }}
-      >
+      <button onClick={handleRegister} style={buttonStyle}>
         CREAR CUENTA
       </button>
 
@@ -179,3 +149,27 @@ export default function Register() {
     </div>
   );
 }
+
+const inputStyle = {
+  width: "100%",
+  marginBottom: 12,
+  padding: 10,
+  borderRadius: 6,
+  border: "none",
+  backgroundColor: "#4a5336",
+  color: "#c0c8a4",
+  fontSize: 14,
+  boxSizing: "border-box",
+};
+
+const buttonStyle = {
+  width: "100%",
+  padding: 14,
+  backgroundColor: "#1f2907",
+  color: "#c0c8a4",
+  fontWeight: "700",
+  borderRadius: 8,
+  border: "none",
+  cursor: "pointer",
+  fontSize: 16,
+};

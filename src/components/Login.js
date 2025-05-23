@@ -1,4 +1,5 @@
-import React, { useState } from "react"; 
+// src/components/Login.js
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 export default function Login() {
@@ -9,7 +10,7 @@ export default function Login() {
   const navigate = useNavigate();
 
   const handleLogin = async () => {
-    if (!correo || !password) {
+    if (!correo.trim() || !password.trim()) {
       setErrorMessage("Por favor completa correo y contraseña.");
       return;
     }
@@ -17,16 +18,18 @@ export default function Login() {
     setLoading(true);
 
     try {
-      const response = await fetch("http://192.168.101.5:3001/login", {
+      const response = await fetch("http://192.168.1.6:3001/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ correo, contraseña: password }),
+        body: JSON.stringify({
+          correo: correo.trim(),
+          contraseña: password.trim(),
+        }),
       });
-
       const data = await response.json();
 
       if (response.ok) {
-        // Redirige a Menu
+        localStorage.setItem("userId", data.user._id);
         navigate("/menu");
       } else {
         setErrorMessage(data.message || "Credenciales incorrectas");
@@ -100,7 +103,6 @@ export default function Login() {
         {loading ? "Cargando..." : "INICIAR SESIÓN"}
       </button>
 
-      {/* Aquí añadimos el texto + botón Regístrate */}
       <p style={{ marginTop: 16, color: "#a7b36f", fontSize: 14 }}>
         ¿No tienes una cuenta?{" "}
         <span

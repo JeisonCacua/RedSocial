@@ -1,28 +1,55 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import EditarPerfilUsuario from "../components/editar-perfil-usuario"; // ajusta ruta si hace falta
+import EditarPerfilEmpresa from "../components/editar-perfil-empresa";
 
-export default function Perfil() {
+export default function Perfil({ userId }) {
   const navigate = useNavigate();
+  const [perfilExiste, setPerfilExiste] = useState(null);
+  const [tipoUsuario, setTipoUsuario] = useState(null);
+  const [modalUsuario, setModalUsuario] = useState(false);
+  const [modalEmpresa, setModalEmpresa] = useState(false);
 
-  const cerrarSesion = () => {
-    navigate("/");
-  };
+  useEffect(() => {
+    if (!userId) {
+      setPerfilExiste(false);
+      return;
+    }
+    fetch(`http://192.168.1.6:3001/perfil-existe/${userId}`)
+      .then((res) => res.json())
+      .then((data) => {
+        setPerfilExiste(data.perfilExiste);
+        setTipoUsuario(data.tipo_usuario);
+      })
+      .catch(() => setPerfilExiste(false));
+  }, [userId]);
 
   const buttonClickHandler = (accion) => {
     switch (accion) {
       case "ver":
-        // Aquí puedes agregar lógica para ver perfil
-        alert("Ver perfil"); 
-        break;
+        navigate("/ver-perfil");
+        return;
       case "editar":
-        // Aquí lógica para editar perfil
-        alert("Editar perfil");
-        break;
+        // Abre el modal según tipo_usuario
+        if (tipoUsuario === "Persona Natural") {
+          setModalUsuario(true);
+        } else if (tipoUsuario === "Empresa") {
+          setModalEmpresa(true);
+        }
+        return;
+      case "crear":
+        if (tipoUsuario === "Persona Natural") {
+          navigate("/perfil_usuario");
+        } else {
+          navigate("/perfil_empresa");
+        }
+        return;
       case "cerrar":
-        cerrarSesion();
-        break;
+        localStorage.clear();
+        navigate("/");
+        return;
       default:
-        break;
+        return;
     }
   };
 
@@ -73,19 +100,51 @@ export default function Perfil() {
           gap: 10,
         }}
       >
-        <button className="btnPerfil" onClick={() => buttonClickHandler("ver")}>
-          👤 Ver mi perfil
-        </button>
+        {perfilExiste ? (
+          <>
+            <button
+              className="btnPerfil"
+              onClick={() => buttonClickHandler("ver")}
+            >
+              👤 Ver mi perfil
+            </button>
+            <button
+              className="btnPerfil"
+              onClick={() => buttonClickHandler("editar")}
+            >
+              ✏️ Editar mi perfil
+            </button>
+          </>
+        ) : (
+          <button
+            className="btnPerfil"
+            onClick={() => buttonClickHandler("crear")}
+          >
+            ➕ Crear perfil
+          </button>
+        )}
         <button
           className="btnPerfil"
-          onClick={() => buttonClickHandler("editar")}
+          onClick={() => buttonClickHandler("cerrar")}
         >
-          ✏️ Editar mi perfil
-        </button>
-        <button className="btnPerfil" onClick={() => buttonClickHandler("cerrar")}>
           🔒 Cerrar sesión
         </button>
       </div>
+
+      {/* Aquí renderizas los modales según estado */}
+      {modalUsuario && (
+        <EditarPerfilUsuario
+          onClose={() => setModalUsuario(false)}
+          userId={userId}
+        />
+      )}
+
+      {modalEmpresa && (
+        <EditarPerfilEmpresa
+          onClose={() => setModalEmpresa(false)}
+          userId={userId}
+        />
+      )}
     </>
   );
 }
