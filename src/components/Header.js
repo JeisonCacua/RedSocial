@@ -163,21 +163,23 @@ export default function Header() {
                   >
                     <img
                       src={
-                        item.foto ||
-                        (item.tipo_usuario === "Persona Natural"
-                          ? "https://via.placeholder.com/40?text=U"
-                          : "https://via.placeholder.com/40?text=E")
+                        item.foto && item.foto.trim() !== ""
+                          ? item.foto
+                          : item.tipo_usuario === "Persona Natural"
+                            ? "/perfil.jpg"
+                            : "/perfil.jpg" // o "/logo-default.jpg" si tienes imagen diferente para empresa
                       }
                       alt={item.nombre}
                       style={{
                         width: 40,
                         height: 40,
-                        borderRadius:
-                          item.tipo_usuario === "Persona Natural" ? "50%" : 8,
+                        borderRadius: item.tipo_usuario === "Persona Natural" ? "50%" : 8,
                         objectFit: "cover",
                         border: "1px solid #a7b36f",
                       }}
                     />
+
+
                     <div style={{ flexGrow: 1 }}>
                       <div
                         style={{

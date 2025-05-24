@@ -13,14 +13,19 @@ export default function Register() {
 
   const tiposPermitidos = ["Persona Natural", "Empresa"];
 
-  const handleRegister = async () => {
-    setErrorMessage("");
-    setSuccessMessage("");
+ const handleRegister = async () => {
+  setErrorMessage("");
+  setSuccessMessage("");
 
-    if (!nombre || !correo || !tipoUsuario || !password || !confirmarPassword) {
-      setErrorMessage("Por favor, completa todos los campos");
-      return;
-    }
+  if (!nombre || !correo || !tipoUsuario || !password || !confirmarPassword) {
+    setErrorMessage("Por favor, completa todos los campos");
+    return;
+  }
+
+  if (!/^[A-Za-zÁÉÍÓÚÜáéíóúüñÑ\s]+$/.test(nombre)) {
+    setErrorMessage("El nombre solo puede contener letras y espacios");
+    return;
+  }
 
     if (!tiposPermitidos.includes(tipoUsuario)) {
       setErrorMessage("Seleccione un tipo de usuario válido");
@@ -33,7 +38,7 @@ export default function Register() {
     }
 
     try {
-      const response = await fetch("http://192.168.1.6:3001/register", {
+      const response = await fetch("http://192.168.101.5:3001/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -86,9 +91,15 @@ export default function Register() {
         type="text"
         placeholder="Nombre completo"
         value={nombre}
-        onChange={(e) => setNombre(e.target.value)}
+        onChange={e => {
+          const val = e.target.value;
+          if (/^[A-Za-zÁÉÍÓÚÜáéíóúüñÑ\s]*$/.test(val)) {
+            setNombre(val);
+          }
+        }}
         style={inputStyle}
       />
+
 
       <label style={{ marginBottom: 6, display: "block", fontWeight: "600" }}>
         Correo electrónico:
@@ -135,6 +146,9 @@ export default function Register() {
         onChange={(e) => setConfirmarPassword(e.target.value)}
         style={inputStyle}
       />
+
+
+
 
       <button onClick={handleRegister} style={buttonStyle}>
         CREAR CUENTA

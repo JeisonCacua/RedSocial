@@ -7,13 +7,13 @@ export default function VerPerfilUsuario({ userId, onClose }) {
   const [loadingPublicaciones, setLoadingPublicaciones] = useState(true);
   const [error, setError] = useState(null);
 
-  // Suponiendo que guardas el userId del usuario que inició sesión en localStorage
-  // Ajusta esta línea si usas otro método (contexto, redux, etc.)
   const userSesion = localStorage.getItem("userId");
 
+  // Estado para controlar la publicación que se quiere eliminar
+  const [confirmDeleteId, setConfirmDeleteId] = useState(null);
+
   useEffect(() => {
-    // Cargar perfil usuario
-    fetch(`http://192.168.1.6:3001/perfil-usuario/${userId}`)
+    fetch(`http://192.168.101.5:3001/perfil-usuario/${userId}`)
       .then((res) => {
         if (!res.ok) throw new Error("No se pudo cargar el perfil");
         return res.json();
@@ -22,8 +22,7 @@ export default function VerPerfilUsuario({ userId, onClose }) {
       .catch((e) => setError(e.message))
       .finally(() => setLoadingPerfil(false));
 
-    // Cargar publicaciones del usuario
-    fetch(`http://192.168.1.6:3001/publicaciones`)
+    fetch(`http://192.168.101.5:3001/publicaciones`)
       .then((res) => res.json())
       .then((data) => {
         const publicacionesUsuario = data.filter(
@@ -37,19 +36,18 @@ export default function VerPerfilUsuario({ userId, onClose }) {
 
   // Función para eliminar publicación
   const borrarPublicacion = async (id) => {
-    if (!window.confirm("¿Seguro que quieres eliminar esta publicación?"))
-      return;
-
     try {
-      const res = await fetch(`http://192.168.1.6:3001/publicaciones/${id}`, {
+      const res = await fetch(`http://192.168.101.5:3001/publicaciones/${id}`, {
         method: "DELETE",
       });
       if (!res.ok) throw new Error("Error al eliminar");
 
-      // Actualizar estado para eliminar la publicación localmente
       setPublicaciones((prev) => prev.filter((pub) => pub._id !== id));
+      setConfirmDeleteId(null);
+      window.location.reload();
     } catch (error) {
       alert("No se pudo eliminar la publicación");
+      setConfirmDeleteId(null);
     }
   };
 
@@ -86,10 +84,9 @@ export default function VerPerfilUsuario({ userId, onClose }) {
       <div
         style={{ display: "flex", gap: 20, marginBottom: 20, flexWrap: "wrap" }}
       >
-        {/* Foto personal */}
         {perfil.foto_personal && (
           <img
-            src={perfil.foto_personal}
+            src={perfil.foto_personal || "/perfil.jpg"}
             alt="Foto personal"
             style={{
               width: 150,
@@ -99,6 +96,7 @@ export default function VerPerfilUsuario({ userId, onClose }) {
               border: "2px solid #a7b36f",
             }}
           />
+
         )}
 
         <div style={{ flex: 1, minWidth: 280 }}>
@@ -109,16 +107,13 @@ export default function VerPerfilUsuario({ userId, onClose }) {
             <strong>Estudios:</strong> {perfil.estudios || "No especificado"}
           </p>
           <p>
-            <strong>Experiencia:</strong>{" "}
-            {perfil.experiencia || "No especificado"}
+            <strong>Experiencia:</strong> {perfil.experiencia || "No especificado"}
           </p>
           <p>
-            <strong>Habilidades:</strong>{" "}
-            {perfil.habilidades || "No especificado"}
+            <strong>Habilidades:</strong> {perfil.habilidades || "No especificado"}
           </p>
           <p>
-            <strong>Estudio o trabajo actual:</strong>{" "}
-            {perfil.estudio_o_trabajo_actual}
+            <strong>Estudio o trabajo actual:</strong> {perfil.estudio_o_trabajo_actual}
           </p>
           <p>
             <strong>Departamento:</strong> {perfil.departamento}
@@ -173,7 +168,7 @@ export default function VerPerfilUsuario({ userId, onClose }) {
               backgroundColor: "#fff",
               padding: 16,
               marginBottom: 16,
-              position: "relative", // para el botón eliminar
+              position: "relative",
             }}
           >
             <p style={{ fontWeight: "700", marginBottom: 8 }}>
@@ -196,10 +191,9 @@ export default function VerPerfilUsuario({ userId, onClose }) {
               {new Date(pub.fecha).toLocaleString()}
             </p>
 
-            {/* Mostrar botón eliminar solo si usuario sesión es autor */}
             {userSesion === (pub.userId?._id || pub.userId) && (
               <button
-                onClick={() => borrarPublicacion(pub._id)}
+                onClick={() => setConfirmDeleteId(pub._id)}
                 style={{
                   position: "absolute",
                   top: 12,
@@ -217,6 +211,64 @@ export default function VerPerfilUsuario({ userId, onClose }) {
             )}
           </div>
         ))
+      )}
+
+      {/* Modal de confirmación */}
+      {confirmDeleteId && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            backgroundColor: "rgba(0,0,0,0.5)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 10000,
+          }}
+          onClick={() => setConfirmDeleteId(null)}
+        >
+          <div
+            style={{
+              backgroundColor: "white",
+              padding: 20,
+              borderRadius: 12,
+              minWidth: 320,
+              boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <p style={{ marginBottom: 20 }}>
+              ¿Seguro que quieres eliminar esta publicación?
+            </p>
+            <div style={{ display: "flex", justifyContent: "flex-end", gap: 10 }}>
+              <button
+                onClick={() => setConfirmDeleteId(null)}
+                style={{
+                  padding: "6px 12px",
+                  backgroundColor: "#ccc",
+                  border: "none",
+                  borderRadius: 6,
+                  cursor: "pointer",
+                }}
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={() => borrarPublicacion(confirmDeleteId)}
+                style={{
+                  padding: "6px 12px",
+                  backgroundColor: "#4CAF50",
+                  color: "white",
+                  border: "none",
+                  borderRadius: 6,
+                  cursor: "pointer",
+                }}
+              >
+                Aceptar
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </ModalWrapper>
   );
@@ -241,7 +293,7 @@ function ModalWrapper({ children, onClose }) {
     >
       <div
         style={{
-          position: "relative", // para posicionar la X
+          position: "relative",
           backgroundColor: "#fff",
           borderRadius: 16,
           padding: 25,
@@ -258,7 +310,6 @@ function ModalWrapper({ children, onClose }) {
         }}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Botón X */}
         <button
           onClick={onClose}
           aria-label="Cerrar"

@@ -7,11 +7,13 @@ export default function VerPerfilEmpresa({ userId, onClose }) {
   const [loadingPublicaciones, setLoadingPublicaciones] = useState(true);
   const [error, setError] = useState(null);
 
-  // UserId de sesión (ajustar según cómo guardes el userId activo)
   const userSesion = localStorage.getItem("userId");
 
+  // Estado para modal de confirmación
+  const [confirmDeleteId, setConfirmDeleteId] = useState(null);
+
   useEffect(() => {
-    fetch(`http://192.168.1.6:3001/perfil-empresa/${userId}`)
+    fetch(`http://192.168.101.5:3001/perfil-empresa/${userId}`)
       .then((res) => {
         if (!res.ok) throw new Error("No se pudo cargar el perfil");
         return res.json();
@@ -20,7 +22,7 @@ export default function VerPerfilEmpresa({ userId, onClose }) {
       .catch((e) => setError(e.message))
       .finally(() => setLoadingPerfil(false));
 
-    fetch(`http://192.168.1.6:3001/publicaciones`)
+    fetch(`http://192.168.101.5:3001/publicaciones`)
       .then((res) => res.json())
       .then((data) => {
         const publicacionesUsuario = data.filter(
@@ -34,18 +36,18 @@ export default function VerPerfilEmpresa({ userId, onClose }) {
 
   // Función para eliminar publicación
   const borrarPublicacion = async (id) => {
-    if (!window.confirm("¿Seguro que quieres eliminar esta publicación?"))
-      return;
-
     try {
-      const res = await fetch(`http://192.168.1.6:3001/publicaciones/${id}`, {
+      const res = await fetch(`http://192.168.101.5:3001/publicaciones/${id}`, {
         method: "DELETE",
       });
       if (!res.ok) throw new Error("Error al eliminar");
 
       setPublicaciones((prev) => prev.filter((pub) => pub._id !== id));
+      setConfirmDeleteId(null);
+      window.location.reload();
     } catch (error) {
       alert("No se pudo eliminar la publicación");
+      setConfirmDeleteId(null);
     }
   };
 
@@ -82,19 +84,19 @@ export default function VerPerfilEmpresa({ userId, onClose }) {
       <div
         style={{ display: "flex", gap: 20, marginBottom: 20, flexWrap: "wrap" }}
       >
-        {/* Logo empresa */}
         {perfil.foto_logo_empresa && (
-          <img
-            src={perfil.foto_logo_empresa}
-            alt="Logo empresa"
-            style={{
-              width: 150,
-              height: 150,
-              borderRadius: 16,
-              objectFit: "contain",
-              border: "2px solid #a7b36f",
-            }}
-          />
+         <img
+  src={perfil.foto_logo_empresa || "/perfil.jpg"}
+  alt="Logo empresa"
+  style={{
+    width: 150,
+    height: 150,
+    borderRadius: 16,
+    objectFit: "contain",
+    border: "2px solid #a7b36f",
+  }}
+/>
+
         )}
 
         <div style={{ flex: 1, minWidth: 280 }}>
@@ -102,12 +104,10 @@ export default function VerPerfilEmpresa({ userId, onClose }) {
             <strong>Nombre empresa:</strong> {perfil.nombreEmpresa}
           </p>
           <p>
-            <strong>Dirección:</strong>{" "}
-            {perfil.direccionEmpresa || "No especificado"}
+            <strong>Dirección:</strong> {perfil.direccionEmpresa || "No especificado"}
           </p>
           <p>
-            <strong>Teléfono:</strong>{" "}
-            {perfil.telefonoEmpresa || "No especificado"}
+            <strong>Teléfono:</strong> {perfil.telefonoEmpresa || "No especificado"}
           </p>
         </div>
       </div>
@@ -160,10 +160,9 @@ export default function VerPerfilEmpresa({ userId, onClose }) {
               {new Date(pub.fecha).toLocaleString()}
             </p>
 
-            {/* Mostrar botón eliminar solo si usuario sesión es autor */}
             {userSesion === (pub.userId?._id || pub.userId) && (
               <button
-                onClick={() => borrarPublicacion(pub._id)}
+                onClick={() => setConfirmDeleteId(pub._id)}
                 style={{
                   position: "absolute",
                   top: 12,
@@ -181,6 +180,64 @@ export default function VerPerfilEmpresa({ userId, onClose }) {
             )}
           </div>
         ))
+      )}
+
+      {/* Modal de confirmación */}
+      {confirmDeleteId && (
+        <div
+          style={{
+            position: "fixed",
+            inset: 0,
+            backgroundColor: "rgba(0,0,0,0.5)",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 10000,
+          }}
+          onClick={() => setConfirmDeleteId(null)}
+        >
+          <div
+            style={{
+              backgroundColor: "white",
+              padding: 20,
+              borderRadius: 12,
+              minWidth: 320,
+              boxShadow: "0 4px 12px rgba(0,0,0,0.3)",
+            }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <p style={{ marginBottom: 20 }}>
+              ¿Seguro que quieres eliminar esta publicación?
+            </p>
+            <div style={{ display: "flex", justifyContent: "flex-end", gap: 10 }}>
+              <button
+                onClick={() => setConfirmDeleteId(null)}
+                style={{
+                  padding: "6px 12px",
+                  backgroundColor: "#ccc",
+                  border: "none",
+                  borderRadius: 6,
+                  cursor: "pointer",
+                }}
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={() => borrarPublicacion(confirmDeleteId)}
+                style={{
+                  padding: "6px 12px",
+                  backgroundColor: "#4CAF50",
+                  color: "white",
+                  border: "none",
+                  borderRadius: 6,
+                  cursor: "pointer",
+                }}
+              >
+                Aceptar
+              </button>
+            </div>
+          </div>
+        </div>
       )}
     </ModalWrapper>
   );

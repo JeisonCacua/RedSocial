@@ -25,6 +25,9 @@ export default function EditarPerfilUsuario({ userId, onClose }) {
   // Estado para preview imagen
   const [imagenBase64, setImagenBase64] = useState(null);
 
+  // Estado para mostrar modal éxito
+  const [showSuccess, setShowSuccess] = useState(false);
+
   useEffect(() => {
     if (!userId) {
       setError("UserId no disponible para cargar perfil");
@@ -32,7 +35,7 @@ export default function EditarPerfilUsuario({ userId, onClose }) {
       return;
     }
 
-    fetch(`http://192.168.1.6:3001/perfil-usuario/${userId}`)
+    fetch(`http://192.168.101.5:3001/perfil-usuario/${userId}`)
       .then((res) => {
         if (!res.ok) throw new Error("No se pudo cargar el perfil");
         return res.json();
@@ -69,8 +72,7 @@ export default function EditarPerfilUsuario({ userId, onClose }) {
     if (!form.edad.trim()) errors.edad = true;
     if (!form.ciudad.trim()) errors.ciudad = true;
     if (!form.departamento.trim()) errors.departamento = true;
-    if (!form.estudio_o_trabajo_actual.trim())
-      errors.estudio_o_trabajo_actual = true;
+    if (!form.estudio_o_trabajo_actual.trim()) errors.estudio_o_trabajo_actual = true;
     setValidationErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -86,17 +88,19 @@ export default function EditarPerfilUsuario({ userId, onClose }) {
 
     setSaving(true);
     try {
-      const res = await fetch(
-        `http://192.168.1.6:3001/perfil-usuario/${userId}`,
-        {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(form), // Enviamos todo con base64 en foto_personal
-        }
-      );
+      const res = await fetch(`http://192.168.101.5:3001/perfil-usuario/${userId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),
+      });
       if (!res.ok) throw new Error("Error al guardar");
-      alert("Perfil actualizado correctamente");
-      onClose();
+
+      setShowSuccess(true);
+      setTimeout(() => {
+        setShowSuccess(false);
+        onClose();
+      }, 500);
+ window.location.reload();
     } catch (err) {
       setError(err.message);
     } finally {
@@ -105,7 +109,11 @@ export default function EditarPerfilUsuario({ userId, onClose }) {
   };
 
   if (loading)
-    return <ModalWrapper onClose={onClose}>Cargando...</ModalWrapper>;
+    return (
+      <ModalWrapper onClose={onClose}>
+        Cargando...
+      </ModalWrapper>
+    );
 
   const leftFields = [
     { name: "edad", label: "Edad", required: true },
@@ -146,287 +154,315 @@ export default function EditarPerfilUsuario({ userId, onClose }) {
   );
 
   return (
-    <ModalWrapper onClose={onClose}>
-      <h2
-        style={{
-          color: "#000000",
-          marginBottom: 20,
-          fontWeight: "bold",
-          fontSize: 22,
-          textShadow: "none",
-        }}
-      >
-        Editar perfil de Usuario
-      </h2>
-
-      {error && (
-        <p
+    <>
+      {/* Modal éxito arriba del modal principal */}
+      {showSuccess && (
+        <div
           style={{
-            color: "#FF6B6B",
-            backgroundColor: "#f8d7da",
-            padding: "8px 12px",
-            borderRadius: 5,
-            marginBottom: 20,
-            fontWeight: "600",
-            boxShadow: "0 0 10px #FF6B6B80",
+            position: "fixed",
+            top: 20,
+            left: "50%",
+            transform: "translateX(-50%)",
+            backgroundColor: "#6B8B45",
+            color: "#E6F0D4",
+            padding: "12px 24px",
+            borderRadius: 8,
+            boxShadow: "0 4px 10px rgba(107, 139, 69, 0.8)",
+            fontWeight: "700",
+            fontSize: 16,
+            zIndex: 10001,
+            userSelect: "none",
+            pointerEvents: "none",
+            maxWidth: "90%",
+            textAlign: "center",
           }}
         >
-          {error}
-        </p>
+          Perfil actualizado correctamente
+        </div>
       )}
 
-      <form
-        onSubmit={handleSubmit}
-        style={{
-          display: "flex",
-          gap: 24,
-          color: "#3B5311",
-          fontSize: 14,
-          fontWeight: "600",
-          flexWrap: "wrap",
-          maxWidth: 900,
-          margin: "0 auto",
-        }}
-      >
-        {/* Columna izquierda */}
-        <div
+      <ModalWrapper onClose={onClose}>
+        <h2
           style={{
-            flex: 1,
-            minWidth: 280,
-            display: "flex",
-            flexDirection: "column",
-            gap: 16,
+            color: "#000000",
+            marginBottom: 20,
+            fontWeight: "bold",
+            fontSize: 22,
+            textShadow: "none",
           }}
         >
-          {leftFields.map(({ name, label, required }) => (
-            <div
-              key={name}
-              style={{ display: "flex", flexDirection: "column" }}
-            >
-              <label
-                htmlFor={name}
-                style={{
-                  marginBottom: 6,
-                  color: "#000000",
-                }}
-              >
-                {renderLabel(label, required, name)}
-              </label>
-              <input
-                id={name}
-                type="text"
-                name={name}
-                placeholder={label}
-                value={form[name]}
-                onChange={handleChange}
-                style={{
-                  backgroundColor: "#F0F5E1",
-                  border: validationErrors[name]
-                    ? "2px solid red"
-                    : "1.5px solid #A9C88B",
-                  borderRadius: 6,
-                  padding: "10px 14px",
-                  color: "#3B5311",
-                  fontWeight: "500",
-                  fontSize: 14,
-                  outline: "none",
-                  boxShadow: "none",
-                }}
-              />
-            </div>
-          ))}
-        </div>
+          Editar perfil de Usuario
+        </h2>
 
-        {/* Columna derecha */}
-        <div
+        {error && (
+          <p
+            style={{
+              color: "#FF6B6B",
+              backgroundColor: "#f8d7da",
+              padding: "8px 12px",
+              borderRadius: 5,
+              marginBottom: 20,
+              fontWeight: "600",
+              boxShadow: "0 0 10px #FF6B6B80",
+            }}
+          >
+            {error}
+          </p>
+        )}
+
+        <form
+          onSubmit={handleSubmit}
           style={{
-            flex: 1,
-            minWidth: 280,
             display: "flex",
-            flexDirection: "column",
-            gap: 16,
+            gap: 24,
+            color: "#3B5311",
+            fontSize: 14,
+            fontWeight: "600",
+            flexWrap: "wrap",
+            maxWidth: 900,
+            margin: "0 auto",
           }}
         >
-          {rightFields.map(({ name, label, required }) => (
-            <div
-              key={name}
-              style={{ display: "flex", flexDirection: "column" }}
-            >
+          {/* Columna izquierda */}
+          <div
+            style={{
+              flex: 1,
+              minWidth: 280,
+              display: "flex",
+              flexDirection: "column",
+              gap: 16,
+            }}
+          >
+            {leftFields.map(({ name, label, required }) => (
+              <div
+                key={name}
+                style={{ display: "flex", flexDirection: "column" }}
+              >
+                <label
+                  htmlFor={name}
+                  style={{
+                    marginBottom: 6,
+                    color: "#000000",
+                  }}
+                >
+                  {renderLabel(label, required, name)}
+                </label>
+                <input
+                  id={name}
+                  type="text"
+                  name={name}
+                  placeholder={label}
+                  value={form[name]}
+                  onChange={handleChange}
+                  style={{
+                    backgroundColor: "#F0F5E1",
+                    border: validationErrors[name]
+                      ? "2px solid red"
+                      : "1.5px solid #A9C88B",
+                    borderRadius: 6,
+                    padding: "10px 14px",
+                    color: "#3B5311",
+                    fontWeight: "500",
+                    fontSize: 14,
+                    outline: "none",
+                    boxShadow: "none",
+                  }}
+                />
+              </div>
+            ))}
+          </div>
+
+          {/* Columna derecha */}
+          <div
+            style={{
+              flex: 1,
+              minWidth: 280,
+              display: "flex",
+              flexDirection: "column",
+              gap: 16,
+            }}
+          >
+            {rightFields.map(({ name, label, required }) => (
+              <div
+                key={name}
+                style={{ display: "flex", flexDirection: "column" }}
+              >
+                <label
+                  htmlFor={name}
+                  style={{
+                    marginBottom: 6,
+                    color: "#000000",
+                  }}
+                >
+                  {renderLabel(label, required, name)}
+                </label>
+                <input
+                  id={name}
+                  type="text"
+                  name={name}
+                  placeholder={label}
+                  value={form[name]}
+                  onChange={handleChange}
+                  style={{
+                    backgroundColor: "#F0F5E1",
+                    border: validationErrors[name]
+                      ? "2px solid red"
+                      : "1.5px solid #A9C88B",
+                    borderRadius: 6,
+                    padding: "10px 14px",
+                    color: "#3B5311",
+                    fontWeight: "500",
+                    fontSize: 14,
+                    outline: "none",
+                    boxShadow: "none",
+                  }}
+                />
+              </div>
+            ))}
+
+            {/* Subir foto */}
+            <div style={{ display: "flex", flexDirection: "column" }}>
               <label
-                htmlFor={name}
+                htmlFor="fileUpload"
+                style={{ marginBottom: 6, color: "#000000" }}
+              >
+                Subir foto
+              </label>
+
+              <input
+                type="file"
+                id="fileUpload"
+                style={{ display: "none" }}
+                accept="image/*"
+                onChange={manejarArchivo}
+              />
+
+              <button
+                type="button"
+                onClick={() => document.getElementById("fileUpload").click()}
                 style={{
-                  marginBottom: 6,
-                  color: "#000000",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: 8,
+                  padding: "10px",
+                  backgroundColor: "#F0F5E1",
+                  border: "1.5px solid #A9C88B",
+                  borderRadius: 6,
+                  cursor: "pointer",
+                  fontSize: 14,
+                  fontWeight: "600",
+                  color: "#3B5311",
                 }}
               >
-                {renderLabel(label, required, name)}
-              </label>
-              <input
-                id={name}
-                type="text"
-                name={name}
-                placeholder={label}
-                value={form[name]}
-                onChange={handleChange}
-                style={{
-                  backgroundColor: "#F0F5E1",
-                  border: validationErrors[name]
-                    ? "2px solid red"
-                    : "1.5px solid #A9C88B",
-                  borderRadius: 6,
-                  padding: "10px 14px",
-                  color: "#3B5311",
-                  fontWeight: "500",
-                  fontSize: 14,
-                  outline: "none",
-                  boxShadow: "none",
-                }}
-              />
+                📷 Subir Foto
+              </button>
             </div>
-          ))}
+          </div>
 
-          {/* Subir foto */}
-          <div style={{ display: "flex", flexDirection: "column" }}>
+          {/* Resumen ocupa todo el ancho */}
+          <div
+            style={{
+              flexBasis: "100%",
+              display: "flex",
+              flexDirection: "column",
+              gap: 6,
+            }}
+          >
             <label
-              htmlFor="fileUpload"
-              style={{ marginBottom: 6, color: "#000000" }}
-            >
-              Subir foto
-            </label>
-
-            <input
-              type="file"
-              id="fileUpload"
-              style={{ display: "none" }}
-              accept="image/*"
-              onChange={manejarArchivo}
-            />
-
-            <button
-              type="button"
-              onClick={() => document.getElementById("fileUpload").click()}
+              htmlFor="resumen"
               style={{
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: 8,
-                padding: "10px",
+                color: "#000000",
+                fontWeight: "600",
+              }}
+            >
+              Resumen
+            </label>
+            <textarea
+              id="resumen"
+              name="resumen"
+              placeholder="Resumen"
+              value={form.resumen}
+              onChange={handleChange}
+              rows={4}
+              style={{
                 backgroundColor: "#F0F5E1",
                 border: "1.5px solid #A9C88B",
                 borderRadius: 6,
-                cursor: "pointer",
-                fontSize: 14,
-                fontWeight: "600",
+                padding: "10px 14px",
                 color: "#3B5311",
+                fontWeight: "500",
+                fontSize: 14,
+                outline: "none",
+                resize: "vertical",
+                boxShadow: "none",
+              }}
+            />
+          </div>
+
+          {/* Botones */}
+          <div
+            style={{
+              flexBasis: "100%",
+              display: "flex",
+              gap: 12,
+              marginTop: 20,
+            }}
+          >
+            <button
+              type="submit"
+              disabled={saving}
+              style={{
+                flex: 1,
+                backgroundColor: saving ? "#A1B682" : "#6B8B45",
+                color: "#E6F0D4",
+                fontWeight: "700",
+                padding: "12px 0",
+                borderRadius: 8,
+                border: "none",
+                cursor: saving ? "not-allowed" : "pointer",
+                boxShadow: saving ? "none" : "0 4px 10px rgba(107, 139, 69, 0.6)",
+                transition: "background-color 0.3s ease",
+              }}
+              onMouseEnter={(e) => {
+                if (!saving) e.currentTarget.style.backgroundColor = "#7DA253";
+              }}
+              onMouseLeave={(e) => {
+                if (!saving) e.currentTarget.style.backgroundColor = "#6B8B45";
               }}
             >
-              📷 Subir Foto
+              {saving ? "Guardando..." : "Guardar"}
+            </button>
+
+            <button
+              type="button"
+              onClick={onClose}
+              disabled={saving}
+              style={{
+                flex: 1,
+                backgroundColor: "#7C8B53",
+                color: "#E6F0D4",
+                fontWeight: "700",
+                padding: "12px 0",
+                borderRadius: 8,
+                border: "none",
+                cursor: saving ? "not-allowed" : "pointer",
+                boxShadow: "0 2px 8px rgba(124, 139, 83, 0.5)",
+                transition: "background-color 0.3s ease",
+              }}
+              onMouseEnter={(e) => {
+                if (!saving) e.currentTarget.style.backgroundColor = "#8FAE69";
+              }}
+              onMouseLeave={(e) => {
+                if (!saving) e.currentTarget.style.backgroundColor = "#7C8B53";
+              }}
+            >
+              Cancelar
             </button>
           </div>
-        </div>
-
-        {/* Resumen ocupa todo el ancho */}
-        <div
-          style={{
-            flexBasis: "100%",
-            display: "flex",
-            flexDirection: "column",
-            gap: 6,
-          }}
-        >
-          <label
-            htmlFor="resumen"
-            style={{
-              color: "#000000",
-              fontWeight: "600",
-            }}
-          >
-            Resumen
-          </label>
-          <textarea
-            id="resumen"
-            name="resumen"
-            placeholder="Resumen"
-            value={form.resumen}
-            onChange={handleChange}
-            rows={4}
-            style={{
-              backgroundColor: "#F0F5E1",
-              border: "1.5px solid #A9C88B",
-              borderRadius: 6,
-              padding: "10px 14px",
-              color: "#3B5311",
-              fontWeight: "500",
-              fontSize: 14,
-              outline: "none",
-              resize: "vertical",
-              boxShadow: "none",
-            }}
-          />
-        </div>
-
-        {/* Botones */}
-        <div
-          style={{
-            flexBasis: "100%",
-            display: "flex",
-            gap: 12,
-            marginTop: 20,
-          }}
-        >
-          <button
-            type="submit"
-            disabled={saving}
-            style={{
-              flex: 1,
-              backgroundColor: saving ? "#A1B682" : "#6B8B45",
-              color: "#E6F0D4",
-              fontWeight: "700",
-              padding: "12px 0",
-              borderRadius: 8,
-              border: "none",
-              cursor: saving ? "not-allowed" : "pointer",
-              boxShadow: saving ? "none" : "0 4px 10px rgba(107, 139, 69, 0.6)",
-              transition: "background-color 0.3s ease",
-            }}
-            onMouseEnter={(e) => {
-              if (!saving) e.currentTarget.style.backgroundColor = "#7DA253";
-            }}
-            onMouseLeave={(e) => {
-              if (!saving) e.currentTarget.style.backgroundColor = "#6B8B45";
-            }}
-          >
-            {saving ? "Guardando..." : "Guardar"}
-          </button>
-
-          <button
-            type="button"
-            onClick={onClose}
-            disabled={saving}
-            style={{
-              flex: 1,
-              backgroundColor: "#7C8B53",
-              color: "#E6F0D4",
-              fontWeight: "700",
-              padding: "12px 0",
-              borderRadius: 8,
-              border: "none",
-              cursor: saving ? "not-allowed" : "pointer",
-              boxShadow: "0 2px 8px rgba(124, 139, 83, 0.5)",
-              transition: "background-color 0.3s ease",
-            }}
-            onMouseEnter={(e) => {
-              if (!saving) e.currentTarget.style.backgroundColor = "#8FAE69";
-            }}
-            onMouseLeave={(e) => {
-              if (!saving) e.currentTarget.style.backgroundColor = "#7C8B53";
-            }}
-          >
-            Cancelar
-          </button>
-        </div>
-      </form>
-    </ModalWrapper>
+        </form>
+      </ModalWrapper>
+    </>
   );
 }
 
@@ -453,7 +489,7 @@ function ModalWrapper({ children, onClose }) {
           padding: 25,
           maxWidth: 900,
           width: "100%",
-          maxHeight: "calc(80vh - 60px)", // ajustado para no pegar al header
+          maxHeight: "calc(80vh - 60px)",
           overflowY: "auto",
           boxSizing: "border-box",
           boxShadow:
@@ -461,7 +497,7 @@ function ModalWrapper({ children, onClose }) {
           color: "#3B5311",
           fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
           userSelect: "none",
-          marginTop: 20, // opcional, para separación extra
+          marginTop: 20,
         }}
         onClick={(e) => e.stopPropagation()}
       >

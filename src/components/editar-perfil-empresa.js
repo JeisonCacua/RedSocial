@@ -13,6 +13,9 @@ export default function EditarPerfilEmpresa({ userId, onClose }) {
   const [validationErrors, setValidationErrors] = useState({});
   const [imagenBase64, setImagenBase64] = useState(null);
 
+  // Estado para mostrar modal éxito
+  const [showSuccess, setShowSuccess] = useState(false);
+
   useEffect(() => {
     if (!userId) {
       setError("UserId no disponible para cargar perfil");
@@ -20,7 +23,7 @@ export default function EditarPerfilEmpresa({ userId, onClose }) {
       return;
     }
 
-    fetch(`http://192.168.1.6:3001/perfil-empresa/${userId}`)
+    fetch(`http://192.168.101.5:3001/perfil-empresa/${userId}`)
       .then((res) => {
         if (!res.ok) throw new Error("No se pudo cargar el perfil");
         return res.json();
@@ -48,15 +51,17 @@ export default function EditarPerfilEmpresa({ userId, onClose }) {
     reader.onloadend = () => {
       setImagenBase64(reader.result);
       setForm((f) => ({ ...f, foto_logo_empresa: reader.result }));
+      setValidationErrors((ve) => ({ ...ve, foto_logo_empresa: false }));
     };
     reader.readAsDataURL(archivo);
   };
 
-  // Validar campos obligatorios (puedes agregar más)
   const validateFields = () => {
     const errors = {};
-    if (!form.nombreEmpresa.trim()) errors.nombreEmpresa = true;
-    if (!form.direccionEmpresa.trim()) errors.direccionEmpresa = true;
+    if (!(form.nombreEmpresa || "").trim()) errors.nombreEmpresa = true;
+    if (!(form.direccionEmpresa || "").trim()) errors.direccionEmpresa = true;
+    if (!(form.telefonoEmpresa || "").trim()) errors.telefonoEmpresa = true;
+    if (!(form.foto_logo_empresa || "").trim()) errors.foto_logo_empresa = true;
     setValidationErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -73,7 +78,7 @@ export default function EditarPerfilEmpresa({ userId, onClose }) {
     setSaving(true);
     try {
       const res = await fetch(
-        `http://192.168.1.6:3001/perfil-empresa/${userId}`,
+        `http://192.168.101.5:3001/perfil-empresa/${userId}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -81,8 +86,16 @@ export default function EditarPerfilEmpresa({ userId, onClose }) {
         }
       );
       if (!res.ok) throw new Error("Error al guardar");
-      alert("Perfil actualizado correctamente");
-      onClose();
+
+      // Mostrar mensaje éxito
+      setShowSuccess(true);
+
+      // Esperar 2 segundos para que el usuario vea el mensaje
+      setTimeout(() => {
+        setShowSuccess(false);
+        onClose();
+        window.location.reload();
+      }, 500);
     } catch (err) {
       setError(err.message);
     } finally {
@@ -94,235 +107,269 @@ export default function EditarPerfilEmpresa({ userId, onClose }) {
     return <ModalWrapper onClose={onClose}>Cargando...</ModalWrapper>;
 
   return (
-    <ModalWrapper onClose={onClose}>
-      <h2
-        style={{
-          color: "#000000",
-          marginBottom: 20,
-          fontWeight: "bold",
-          fontSize: 22,
-          textShadow: "none",
-          userSelect: "none",
-        }}
-      >
-        Editar perfil de Empresa
-      </h2>
-
-      {error && (
-        <p
+    <>
+      {/* Modal éxito arriba del modal principal */}
+      {showSuccess && (
+        <div
           style={{
-            color: "#FF6B6B",
-            backgroundColor: "#f8d7da",
-            padding: "8px 12px",
-            borderRadius: 5,
-            marginBottom: 20,
-            fontWeight: "600",
-            boxShadow: "0 0 10px #FF6B6B80",
+            position: "fixed",
+            top: 20,
+            left: "50%",
+            transform: "translateX(-50%)",
+            backgroundColor: "#6B8B45",
+            color: "#E6F0D4",
+            padding: "12px 24px",
+            borderRadius: 8,
+            boxShadow: "0 4px 10px rgba(107, 139, 69, 0.8)",
+            fontWeight: "700",
+            fontSize: 16,
+            zIndex: 10001,
+            userSelect: "none",
+            pointerEvents: "none",
+            maxWidth: "90%",
+            textAlign: "center",
           }}
         >
-          {error}
-        </p>
+          Perfil actualizado correctamente
+        </div>
       )}
 
-      <form
-        onSubmit={handleSubmit}
-        style={{
-          display: "flex",
-          flexDirection: "column",
-          gap: 20,
-          color: "#3B5311",
-          fontSize: 14,
-          fontWeight: "600",
-          maxWidth: 450,
-          margin: "0 auto",
-          userSelect: "none",
-        }}
-      >
-        {/* Campos texto */}
-        {[
-          { name: "nombreEmpresa", label: "Nombre Empresa", required: true },
-          {
-            name: "direccionEmpresa",
-            label: "Dirección Empresa",
-            required: true,
-          },
-          {
-            name: "telefonoEmpresa",
-            label: "Teléfono Empresa",
-            required: false,
-          },
-        ].map(({ name, label, required }) => (
-          <div key={name} style={{ display: "flex", flexDirection: "column" }}>
+      <ModalWrapper onClose={onClose}>
+        <h2
+          style={{
+            color: "#000000",
+            marginBottom: 20,
+            fontWeight: "bold",
+            fontSize: 22,
+            textShadow: "none",
+            userSelect: "none",
+          }}
+        >
+          Editar perfil de Empresa
+        </h2>
+
+        {error && (
+          <p
+            style={{
+              color: "#FF6B6B",
+              backgroundColor: "#f8d7da",
+              padding: "8px 12px",
+              borderRadius: 5,
+              marginBottom: 20,
+              fontWeight: "600",
+              boxShadow: "0 0 10px #FF6B6B80",
+            }}
+          >
+            {error}
+          </p>
+        )}
+
+        <form
+          onSubmit={handleSubmit}
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            gap: 20,
+            color: "#3B5311",
+            fontSize: 14,
+            fontWeight: "600",
+            maxWidth: 450,
+            margin: "0 auto",
+            userSelect: "none",
+          }}
+        >
+          {/* Campos texto */}
+          {[
+            { name: "nombreEmpresa", label: "Nombre Empresa", required: true },
+            {
+              name: "direccionEmpresa",
+              label: "Dirección Empresa",
+              required: true,
+            },
+            {
+              name: "telefonoEmpresa",
+              label: "Teléfono Empresa",
+              required: true,
+            },
+          ].map(({ name, label, required }) => (
+            <div key={name} style={{ display: "flex", flexDirection: "column" }}>
+              <label
+                htmlFor={name}
+                style={{
+                  marginBottom: 6,
+                  color: "#000000",
+                  userSelect: "text",
+                }}
+              >
+                {label}
+                {required && (
+                  <span style={{ color: "red", marginLeft: 4 }}>*</span>
+                )}
+                {validationErrors[name] && (
+                  <span
+                    style={{
+                      color: "red",
+                      marginLeft: 8,
+                      fontWeight: "600",
+                      fontSize: 12,
+                    }}
+                  >
+                    (obligatorio)
+                  </span>
+                )}
+              </label>
+              <input
+                id={name}
+                type="text"
+                name={name}
+                placeholder={label}
+                value={form[name]}
+                onChange={handleChange}
+                style={{
+                  backgroundColor: "#F0F5E1",
+                  border: validationErrors[name]
+                    ? "2px solid red"
+                    : "1.5px solid #A9C88B",
+                  borderRadius: 6,
+                  padding: "10px 14px",
+                  color: "#3B5311",
+                  fontWeight: "500",
+                  fontSize: 14,
+                  outline: "none",
+                  boxShadow: "none",
+                }}
+              />
+            </div>
+          ))}
+
+          {/* Subir logo */}
+          <div style={{ display: "flex", flexDirection: "column" }}>
             <label
-              htmlFor={name}
+              htmlFor="fileUpload"
               style={{
                 marginBottom: 6,
                 color: "#000000",
                 userSelect: "text",
               }}
             >
-              {label}
-              {required && (
-                <span style={{ color: "red", marginLeft: 4 }}>*</span>
-              )}
-              {validationErrors[name] && (
-                <span
-                  style={{
-                    color: "red",
-                    marginLeft: 8,
-                    fontWeight: "600",
-                    fontSize: 12,
-                  }}
-                >
-                  (obligatorio)
-                </span>
-              )}
+              Subir Logo
             </label>
+
             <input
-              id={name}
-              type="text"
-              name={name}
-              placeholder={label}
-              value={form[name]}
-              onChange={handleChange}
+              type="file"
+              id="fileUpload"
+              style={{ display: "none" }}
+              accept="image/*"
+              onChange={manejarArchivo}
+            />
+
+            <button
+              type="button"
+              onClick={() => document.getElementById("fileUpload").click()}
               style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 8,
+                padding: "10px",
                 backgroundColor: "#F0F5E1",
-                border: validationErrors[name]
+                border: validationErrors.foto_logo_empresa
                   ? "2px solid red"
                   : "1.5px solid #A9C88B",
                 borderRadius: 6,
-                padding: "10px 14px",
-                color: "#3B5311",
-                fontWeight: "500",
+                cursor: "pointer",
                 fontSize: 14,
-                outline: "none",
-                boxShadow: "none",
+                fontWeight: "600",
+                color: "#3B5311",
+                userSelect: "none",
               }}
-            />
+            >
+              📷 Subir Logo
+            </button>
+            {validationErrors.foto_logo_empresa && (
+              <span style={{ color: "red", fontSize: 12, marginTop: 4 }}>
+                (obligatorio)
+              </span>
+            )}
+            {imagenBase64 && (
+              <img
+                src={imagenBase64}
+                alt="Logo Empresa"
+                style={{
+                  marginTop: 12,
+                  maxWidth: "100%",
+                  maxHeight: 150,
+                  borderRadius: 8,
+                  boxShadow: "0 2px 8px rgba(107, 139, 69, 0.3)",
+                }}
+              />
+            )}
           </div>
-        ))}
 
-        {/* Subir logo */}
-        <div style={{ display: "flex", flexDirection: "column" }}>
-          <label
-            htmlFor="fileUpload"
-            style={{
-              marginBottom: 6,
-              color: "#000000",
-              userSelect: "text",
-            }}
-          >
-            Subir Logo
-          </label>
-
-          <input
-            type="file"
-            id="fileUpload"
-            style={{ display: "none" }}
-            accept="image/*"
-            onChange={manejarArchivo}
-          />
-
-          <button
-            type="button"
-            onClick={() => document.getElementById("fileUpload").click()}
+          {/* Botones */}
+          <div
             style={{
               display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              gap: 8,
-              padding: "10px",
-              backgroundColor: "#F0F5E1",
-              border: "1.5px solid #A9C88B",
-              borderRadius: 6,
-              cursor: "pointer",
-              fontSize: 14,
-              fontWeight: "600",
-              color: "#3B5311",
-              userSelect: "none",
+              gap: 12,
+              marginTop: 10,
             }}
           >
-            📷 Subir Logo
-          </button>
-
-          {imagenBase64 && (
-            <img
-              src={imagenBase64}
-              alt="Logo Empresa"
+            <button
+              type="submit"
+              disabled={saving}
               style={{
-                marginTop: 12,
-                maxWidth: "100%",
-                maxHeight: 150,
+                flex: 1,
+                backgroundColor: saving ? "#A1B682" : "#6B8B45",
+                color: "#E6F0D4",
+                fontWeight: "700",
+                padding: "12px 0",
                 borderRadius: 8,
-                boxShadow: "0 2px 8px rgba(107, 139, 69, 0.3)",
+                border: "none",
+                cursor: saving ? "not-allowed" : "pointer",
+                boxShadow: saving ? "none" : "0 4px 10px rgba(107, 139, 69, 0.6)",
+                transition: "background-color 0.3s ease",
+                userSelect: "none",
               }}
-            />
-          )}
-        </div>
+              onMouseEnter={(e) => {
+                if (!saving) e.currentTarget.style.backgroundColor = "#7DA253";
+              }}
+              onMouseLeave={(e) => {
+                if (!saving) e.currentTarget.style.backgroundColor = "#6B8B45";
+              }}
+            >
+              {saving ? "Guardando..." : "Guardar"}
+            </button>
 
-        {/* Botones */}
-        <div
-          style={{
-            display: "flex",
-            gap: 12,
-            marginTop: 10,
-          }}
-        >
-          <button
-            type="submit"
-            disabled={saving}
-            style={{
-              flex: 1,
-              backgroundColor: saving ? "#A1B682" : "#6B8B45",
-              color: "#E6F0D4",
-              fontWeight: "700",
-              padding: "12px 0",
-              borderRadius: 8,
-              border: "none",
-              cursor: saving ? "not-allowed" : "pointer",
-              boxShadow: saving ? "none" : "0 4px 10px rgba(107, 139, 69, 0.6)",
-              transition: "background-color 0.3s ease",
-              userSelect: "none",
-            }}
-            onMouseEnter={(e) => {
-              if (!saving) e.currentTarget.style.backgroundColor = "#7DA253";
-            }}
-            onMouseLeave={(e) => {
-              if (!saving) e.currentTarget.style.backgroundColor = "#6B8B45";
-            }}
-          >
-            {saving ? "Guardando..." : "Guardar"}
-          </button>
-
-          <button
-            type="button"
-            onClick={onClose}
-            disabled={saving}
-            style={{
-              flex: 1,
-              backgroundColor: "#7C8B53",
-              color: "#E6F0D4",
-              fontWeight: "700",
-              padding: "12px 0",
-              borderRadius: 8,
-              border: "none",
-              cursor: saving ? "not-allowed" : "pointer",
-              boxShadow: "0 2px 8px rgba(124, 139, 83, 0.5)",
-              transition: "background-color 0.3s ease",
-              userSelect: "none",
-            }}
-            onMouseEnter={(e) => {
-              if (!saving) e.currentTarget.style.backgroundColor = "#8FAE69";
-            }}
-            onMouseLeave={(e) => {
-              if (!saving) e.currentTarget.style.backgroundColor = "#7C8B53";
-            }}
-          >
-            Cancelar
-          </button>
-        </div>
-      </form>
-    </ModalWrapper>
+            <button
+              type="button"
+              onClick={onClose}
+              disabled={saving}
+              style={{
+                flex: 1,
+                backgroundColor: "#7C8B53",
+                color: "#E6F0D4",
+                fontWeight: "700",
+                padding: "12px 0",
+                borderRadius: 8,
+                border: "none",
+                cursor: saving ? "not-allowed" : "pointer",
+                boxShadow: "0 2px 8px rgba(124, 139, 83, 0.5)",
+                transition: "background-color 0.3s ease",
+                userSelect: "none",
+              }}
+              onMouseEnter={(e) => {
+                if (!saving) e.currentTarget.style.backgroundColor = "#8FAE69";
+              }}
+              onMouseLeave={(e) => {
+                if (!saving) e.currentTarget.style.backgroundColor = "#7C8B53";
+              }}
+            >
+              Cancelar
+            </button>
+          </div>
+        </form>
+      </ModalWrapper>
+    </>
   );
 }
 

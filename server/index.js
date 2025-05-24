@@ -55,14 +55,24 @@ app.post("/register", async (req, res) => {
 
     await newUser.save();
 
-    // Crear perfil asociado según tipo de usuario
+    const defaultUserImage = "/perfil.jpg";
+    const defaultEmpresaImage = "/perfil.jpg";
+
     if (tipo_usuario === "Persona Natural") {
-      const perfilUsuario = new PerfilUsuario({ userId: newUser._id });
+      const perfilUsuario = new PerfilUsuario({
+        userId: newUser._id,
+        foto_personal: defaultUserImage,
+      });
       await perfilUsuario.save();
     } else if (tipo_usuario === "Empresa") {
-      const perfilEmpresa = new PerfilEmpresa({ userId: newUser._id });
+      const perfilEmpresa = new PerfilEmpresa({
+        userId: newUser._id,
+        foto_logo_empresa: defaultEmpresaImage,
+      });
       await perfilEmpresa.save();
     }
+
+
 
     res.status(201).json({ message: "Usuario y perfil creados correctamente" });
   } catch (error) {

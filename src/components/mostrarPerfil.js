@@ -10,7 +10,7 @@ export default function MostrarPerfil({ userId }) {
       setLoading(false);
       return;
     }
-    fetch(`http://192.168.1.6:3001/perfil/${userId}`)
+    fetch(`http://192.168.101.5:3001/perfil/${userId}`)
       .then((res) => {
         if (!res.ok) throw new Error("Error al cargar perfil");
         return res.json();
@@ -42,10 +42,8 @@ export default function MostrarPerfil({ userId }) {
       <img
         src={
           esNatural
-            ? perfil.foto_personal ||
-              "https://via.placeholder.com/70?text=Sin+Foto"
-            : perfil.foto_logo_empresa ||
-              "https://via.placeholder.com/70?text=Logo"
+            ? perfil.foto_personal || "/perfil.jpg"
+            : perfil.foto_logo_empresa || "/perfil.jpg"
         }
         alt="Perfil"
         style={{
@@ -60,6 +58,7 @@ export default function MostrarPerfil({ userId }) {
           transform: "translateX(-50%)",
         }}
       />
+
 
       <div
         style={{

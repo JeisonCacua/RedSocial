@@ -45,15 +45,15 @@ const styles = {
     gap: 12,
   },
   headerButton: {
-    padding: "8px 16px",
-    borderRadius: 6,
-    border: "none",
-    fontWeight: "600",
-    cursor: "pointer",
+    padding: "6px 12px",
+    borderRadius: 4,        
+    marginLeft: 8,
+    fontSize: 14,
+    cursor: "pointer"
   },
   loginBtn: {
-    backgroundColor: "transparent",
-    color: "#c0c8a4",
+    backgroundColor: "8ca347",
+    color: "#fff",
   },
   registerBtn: {
     backgroundColor: "#8ca347",
@@ -102,36 +102,37 @@ function TopHeader() {
 
   return (
     <header style={styles.topHeader}>
-      <div>WjB</div>
-      <div style={styles.headerButtons}>
-        <button
-          style={{
-            ...styles.headerButton,
-            ...styles.loginBtn,
-            fontWeight: location.pathname === "/" ? "700" : "600",
-            textDecoration: location.pathname === "/" ? "underline" : "none",
-            color: location.pathname === "/" ? "#fff" : "#c0c8a4",
-          }}
-          onClick={() => navigate("/")}
-        >
-          Iniciar Sesión
-        </button>
-        <button
-          style={{
-            ...styles.headerButton,
-            ...styles.registerBtn,
-            fontWeight: location.pathname === "/register" ? "700" : "600",
-            textDecoration:
-              location.pathname === "/register" ? "underline" : "none",
-            backgroundColor:
-              location.pathname === "/register" ? "#73943d" : "#8ca347",
-          }}
-          onClick={() => navigate("/register")}
-        >
-          Registrarse
-        </button>
-      </div>
-    </header>
+  <div>WjB</div>
+  <div style={styles.headerButtons}>
+    <button
+      onClick={() => navigate("/")}
+      style={{
+        ...styles.headerButton,
+        border: "1px solid #8ca347",
+        backgroundColor: location.pathname === "/" ? "#8ca347" : "transparent",
+        color: location.pathname === "/" ? "#ffffff" : "#c0c8a4",
+        fontWeight: location.pathname === "/" ? 700 : 600,
+        textDecoration: location.pathname === "/" ? "underline" : "none"
+      }}
+    >
+      Iniciar Sesión
+    </button>
+    <button
+      onClick={() => navigate("/register")}
+      style={{
+        ...styles.headerButton,
+        border: "1px solid #8ca347",
+        backgroundColor: location.pathname === "/register" ? "#73943d" : "#8ca347",
+        color: "#ffffff",
+        fontWeight: location.pathname === "/register" ? 700 : 600,
+        textDecoration: location.pathname === "/register" ? "underline" : "none"
+      }}
+    >
+      Registrarse
+    </button>
+  </div>
+</header>
+
   );
 }
 
