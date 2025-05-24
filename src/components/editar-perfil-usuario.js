@@ -11,9 +11,10 @@ export default function EditarPerfilUsuario({ userId, onClose }) {
     ciudad: "",
     direccion: "",
     numero: "",
-    foto_personal: "", // aquí estará la cadena base64
+    foto_personal: "",
     resumen: "",
   });
+
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
@@ -31,7 +32,7 @@ export default function EditarPerfilUsuario({ userId, onClose }) {
       return;
     }
 
-    fetch(`http://192.168.101.5:3001/perfil-usuario/${userId}`)
+    fetch(`http://192.168.1.6:3001/perfil-usuario/${userId}`)
       .then((res) => {
         if (!res.ok) throw new Error("No se pudo cargar el perfil");
         return res.json();
@@ -68,7 +69,8 @@ export default function EditarPerfilUsuario({ userId, onClose }) {
     if (!form.edad.trim()) errors.edad = true;
     if (!form.ciudad.trim()) errors.ciudad = true;
     if (!form.departamento.trim()) errors.departamento = true;
-    if (!form.estudio_o_trabajo_actual.trim()) errors.estudio_o_trabajo_actual = true;
+    if (!form.estudio_o_trabajo_actual.trim())
+      errors.estudio_o_trabajo_actual = true;
     setValidationErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -85,7 +87,7 @@ export default function EditarPerfilUsuario({ userId, onClose }) {
     setSaving(true);
     try {
       const res = await fetch(
-        `http://192.168.101.5:3001/perfil-usuario/${userId}`,
+        `http://192.168.1.6:3001/perfil-usuario/${userId}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -110,7 +112,11 @@ export default function EditarPerfilUsuario({ userId, onClose }) {
     { name: "estudios", label: "Estudios", required: false },
     { name: "experiencia", label: "Experiencia", required: false },
     { name: "habilidades", label: "Habilidades", required: false },
-    { name: "estudio_o_trabajo_actual", label: "Estudio o Trabajo Actual", required: true },
+    {
+      name: "estudio_o_trabajo_actual",
+      label: "Estudio o Trabajo Actual",
+      required: true,
+    },
     { name: "departamento", label: "Departamento", required: true },
   ];
 
@@ -125,7 +131,14 @@ export default function EditarPerfilUsuario({ userId, onClose }) {
       {label}
       {required && <span style={{ color: "red", marginLeft: 4 }}>*</span>}
       {validationErrors[name] && (
-        <span style={{ color: "red", marginLeft: 8, fontWeight: "600", fontSize: 12 }}>
+        <span
+          style={{
+            color: "red",
+            marginLeft: 8,
+            fontWeight: "600",
+            fontSize: 12,
+          }}
+        >
           (obligatorio)
         </span>
       )}
@@ -186,7 +199,10 @@ export default function EditarPerfilUsuario({ userId, onClose }) {
           }}
         >
           {leftFields.map(({ name, label, required }) => (
-            <div key={name} style={{ display: "flex", flexDirection: "column" }}>
+            <div
+              key={name}
+              style={{ display: "flex", flexDirection: "column" }}
+            >
               <label
                 htmlFor={name}
                 style={{
@@ -205,7 +221,9 @@ export default function EditarPerfilUsuario({ userId, onClose }) {
                 onChange={handleChange}
                 style={{
                   backgroundColor: "#F0F5E1",
-                  border: validationErrors[name] ? "2px solid red" : "1.5px solid #A9C88B",
+                  border: validationErrors[name]
+                    ? "2px solid red"
+                    : "1.5px solid #A9C88B",
                   borderRadius: 6,
                   padding: "10px 14px",
                   color: "#3B5311",
@@ -230,7 +248,10 @@ export default function EditarPerfilUsuario({ userId, onClose }) {
           }}
         >
           {rightFields.map(({ name, label, required }) => (
-            <div key={name} style={{ display: "flex", flexDirection: "column" }}>
+            <div
+              key={name}
+              style={{ display: "flex", flexDirection: "column" }}
+            >
               <label
                 htmlFor={name}
                 style={{
@@ -249,7 +270,9 @@ export default function EditarPerfilUsuario({ userId, onClose }) {
                 onChange={handleChange}
                 style={{
                   backgroundColor: "#F0F5E1",
-                  border: validationErrors[name] ? "2px solid red" : "1.5px solid #A9C88B",
+                  border: validationErrors[name]
+                    ? "2px solid red"
+                    : "1.5px solid #A9C88B",
                   borderRadius: 6,
                   padding: "10px 14px",
                   color: "#3B5311",
@@ -299,8 +322,6 @@ export default function EditarPerfilUsuario({ userId, onClose }) {
             >
               📷 Subir Foto
             </button>
-
-            
           </div>
         </div>
 
@@ -365,9 +386,7 @@ export default function EditarPerfilUsuario({ userId, onClose }) {
               borderRadius: 8,
               border: "none",
               cursor: saving ? "not-allowed" : "pointer",
-              boxShadow: saving
-                ? "none"
-                : "0 4px 10px rgba(107, 139, 69, 0.6)",
+              boxShadow: saving ? "none" : "0 4px 10px rgba(107, 139, 69, 0.6)",
               transition: "background-color 0.3s ease",
             }}
             onMouseEnter={(e) => {
@@ -423,6 +442,7 @@ function ModalWrapper({ children, onClose }) {
         justifyContent: "center",
         zIndex: 9999,
         padding: 20,
+        overflowY: "auto",
       }}
       onClick={onClose}
     >
@@ -433,12 +453,15 @@ function ModalWrapper({ children, onClose }) {
           padding: 25,
           maxWidth: 900,
           width: "100%",
+          maxHeight: "calc(80vh - 60px)", // ajustado para no pegar al header
+          overflowY: "auto",
           boxSizing: "border-box",
           boxShadow:
             "0 8px 20px rgba(66, 82, 19, 0.3), inset 0 0 8px rgba(169, 200, 139, 0.15)",
           color: "#3B5311",
           fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
           userSelect: "none",
+          marginTop: 20, // opcional, para separación extra
         }}
         onClick={(e) => e.stopPropagation()}
       >

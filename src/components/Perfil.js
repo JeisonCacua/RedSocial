@@ -1,21 +1,27 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import EditarPerfilUsuario from "../components/editar-perfil-usuario"; // ajusta ruta si hace falta
-import EditarPerfilEmpresa from "../components/editar-perfil-empresa";
+import EditarPerfilUsuario from "./editar-perfil-usuario";
+import EditarPerfilEmpresa from "./editar-perfil-empresa";
+import VerPerfilUsuario from "./ver-perfil-usuario";
+import VerPerfilEmpresa from "./ver-perfil-empresa";
 
 export default function Perfil({ userId }) {
   const navigate = useNavigate();
   const [perfilExiste, setPerfilExiste] = useState(null);
   const [tipoUsuario, setTipoUsuario] = useState(null);
-  const [modalUsuario, setModalUsuario] = useState(false);
-  const [modalEmpresa, setModalEmpresa] = useState(false);
+
+  const [modalUsuarioEditar, setModalUsuarioEditar] = useState(false);
+  const [modalEmpresaEditar, setModalEmpresaEditar] = useState(false);
+
+  const [modalUsuarioVer, setModalUsuarioVer] = useState(false);
+  const [modalEmpresaVer, setModalEmpresaVer] = useState(false);
 
   useEffect(() => {
     if (!userId) {
       setPerfilExiste(false);
       return;
     }
-    fetch(`http://192.168.101.5:3001/perfil-existe/${userId}`)
+    fetch(`http://192.168.1.6:3001/perfil-existe/${userId}`)
       .then((res) => res.json())
       .then((data) => {
         setPerfilExiste(data.perfilExiste);
@@ -27,14 +33,17 @@ export default function Perfil({ userId }) {
   const buttonClickHandler = (accion) => {
     switch (accion) {
       case "ver":
-        navigate("/ver-perfil");
+        if (tipoUsuario === "Persona Natural") {
+          setModalUsuarioVer(true);
+        } else if (tipoUsuario === "Empresa") {
+          setModalEmpresaVer(true);
+        }
         return;
       case "editar":
-        // Abre el modal según tipo_usuario
         if (tipoUsuario === "Persona Natural") {
-          setModalUsuario(true);
+          setModalUsuarioEditar(true);
         } else if (tipoUsuario === "Empresa") {
-          setModalEmpresa(true);
+          setModalEmpresaEditar(true);
         }
         return;
       case "crear":
@@ -131,17 +140,30 @@ export default function Perfil({ userId }) {
         </button>
       </div>
 
-      {/* Aquí renderizas los modales según estado */}
-      {modalUsuario && (
-        <EditarPerfilUsuario
-          onClose={() => setModalUsuario(false)}
+      {/* Modales ver perfil */}
+      {modalUsuarioVer && (
+        <VerPerfilUsuario
+          onClose={() => setModalUsuarioVer(false)}
+          userId={userId}
+        />
+      )}
+      {modalEmpresaVer && (
+        <VerPerfilEmpresa
+          onClose={() => setModalEmpresaVer(false)}
           userId={userId}
         />
       )}
 
-      {modalEmpresa && (
+      {/* Modales editar perfil */}
+      {modalUsuarioEditar && (
+        <EditarPerfilUsuario
+          onClose={() => setModalUsuarioEditar(false)}
+          userId={userId}
+        />
+      )}
+      {modalEmpresaEditar && (
         <EditarPerfilEmpresa
-          onClose={() => setModalEmpresa(false)}
+          onClose={() => setModalEmpresaEditar(false)}
           userId={userId}
         />
       )}

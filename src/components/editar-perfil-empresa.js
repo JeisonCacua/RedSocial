@@ -20,7 +20,7 @@ export default function EditarPerfilEmpresa({ userId, onClose }) {
       return;
     }
 
-    fetch(`http://192.168.101.5:3001/perfil-empresa/${userId}`)
+    fetch(`http://192.168.1.6:3001/perfil-empresa/${userId}`)
       .then((res) => {
         if (!res.ok) throw new Error("No se pudo cargar el perfil");
         return res.json();
@@ -73,7 +73,7 @@ export default function EditarPerfilEmpresa({ userId, onClose }) {
     setSaving(true);
     try {
       const res = await fetch(
-        `http://192.168.101.5:3001/perfil-empresa/${userId}`,
+        `http://192.168.1.6:3001/perfil-empresa/${userId}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -141,8 +141,16 @@ export default function EditarPerfilEmpresa({ userId, onClose }) {
         {/* Campos texto */}
         {[
           { name: "nombreEmpresa", label: "Nombre Empresa", required: true },
-          { name: "direccionEmpresa", label: "Dirección Empresa", required: true },
-          { name: "telefonoEmpresa", label: "Teléfono Empresa", required: false },
+          {
+            name: "direccionEmpresa",
+            label: "Dirección Empresa",
+            required: true,
+          },
+          {
+            name: "telefonoEmpresa",
+            label: "Teléfono Empresa",
+            required: false,
+          },
         ].map(({ name, label, required }) => (
           <div key={name} style={{ display: "flex", flexDirection: "column" }}>
             <label
@@ -154,7 +162,9 @@ export default function EditarPerfilEmpresa({ userId, onClose }) {
               }}
             >
               {label}
-              {required && <span style={{ color: "red", marginLeft: 4 }}>*</span>}
+              {required && (
+                <span style={{ color: "red", marginLeft: 4 }}>*</span>
+              )}
               {validationErrors[name] && (
                 <span
                   style={{
@@ -270,9 +280,7 @@ export default function EditarPerfilEmpresa({ userId, onClose }) {
               borderRadius: 8,
               border: "none",
               cursor: saving ? "not-allowed" : "pointer",
-              boxShadow: saving
-                ? "none"
-                : "0 4px 10px rgba(107, 139, 69, 0.6)",
+              boxShadow: saving ? "none" : "0 4px 10px rgba(107, 139, 69, 0.6)",
               transition: "background-color 0.3s ease",
               userSelect: "none",
             }}
@@ -330,7 +338,7 @@ function ModalWrapper({ children, onClose }) {
         justifyContent: "center",
         zIndex: 9999,
         padding: 20,
-        userSelect: "none",
+        overflowY: "auto",
       }}
       onClick={onClose}
     >
@@ -341,11 +349,15 @@ function ModalWrapper({ children, onClose }) {
           padding: 25,
           maxWidth: 900,
           width: "100%",
+          maxHeight: "calc(80vh - 60px)", // ajustado para no pegar al header
+          overflowY: "auto",
           boxSizing: "border-box",
           boxShadow:
             "0 8px 20px rgba(66, 82, 19, 0.3), inset 0 0 8px rgba(169, 200, 139, 0.15)",
           color: "#3B5311",
           fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
+          userSelect: "none",
+          marginTop: 20, // opcional, para separación extra
         }}
         onClick={(e) => e.stopPropagation()}
       >

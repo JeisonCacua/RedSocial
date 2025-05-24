@@ -235,7 +235,79 @@ app.get("/publicaciones", async (req, res) => {
   }
 });
 
-// Iniciar servidor
+app.get("/usuarios-empresas", async (req, res) => {
+  const query = req.query.query || "";
+
+  if (query.trim() === "") return res.json([]);
+
+  try {
+    const usuarios = await User.find({
+      nombre: { $regex: query, $options: "i" },
+    });
+
+    const BASE64_PREFIX_JPEG = "data:image/jpeg;base64,";
+    const BASE64_PREFIX_PNG = "data:image/png;base64,";
+
+    const resultados = await Promise.all(
+      usuarios.map(async (user) => {
+        let foto = null;
+
+        if (user.tipo_usuario === "Persona Natural") {
+          const perfil = await PerfilUsuario.findOne({ userId: user._id });
+          if (perfil?.foto_personal) {
+            if (
+              perfil.foto_personal.startsWith(BASE64_PREFIX_JPEG) ||
+              perfil.foto_personal.startsWith(BASE64_PREFIX_PNG)
+            ) {
+              foto = perfil.foto_personal;
+            } else {
+              foto = BASE64_PREFIX_PNG + perfil.foto_personal;
+            }
+          }
+        } else if (user.tipo_usuario === "Empresa") {
+          const perfil = await PerfilEmpresa.findOne({ userId: user._id });
+          if (perfil?.foto_logo_empresa) {
+            if (
+              perfil.foto_logo_empresa.startsWith(BASE64_PREFIX_JPEG) ||
+              perfil.foto_logo_empresa.startsWith(BASE64_PREFIX_PNG)
+            ) {
+              foto = perfil.foto_logo_empresa;
+            } else {
+              foto = BASE64_PREFIX_PNG + perfil.foto_logo_empresa;
+            }
+          }
+        }
+
+        return {
+          _id: user._id,
+          nombre: user.nombre,
+          tipo_usuario: user.tipo_usuario,
+          foto,
+        };
+      })
+    );
+
+    res.json(resultados);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Error en servidor" });
+  }
+});
+
+// Ruta para eliminar publicación por id
+app.delete("/publicaciones/:id", async (req, res) => {
+  const { id } = req.params;
+  try {
+    const deleted = await Publicacion.findByIdAndDelete(id);
+    if (!deleted) {
+      return res.status(404).json({ message: "Publicación no encontrada" });
+    }
+    res.json({ message: "Publicación eliminada correctamente" });
+  } catch (error) {
+    res.status(500).json({ message: "Error eliminando la publicación" });
+  }
+});
+
 app.listen(3001, () => {
   console.log("Servidor corriendo en puerto 3001");
 });
