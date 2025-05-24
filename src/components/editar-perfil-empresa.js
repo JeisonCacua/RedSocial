@@ -15,11 +15,13 @@ export default function EditarPerfilEmpresa({ userId, onClose }) {
     if (!userId) {
       setError("UserId no disponible para cargar perfil");
       setLoading(false);
+
       return;
     }
 
     // Cambié la URL para que sea la correcta para empresa
-    fetch(`http://192.168.1.6:3001/perfil-empresa/${userId}`)
+
+    fetch(`http://192.168.101.5:3001/perfil-empresa/${userId}`)
       .then((res) => {
         if (!res.ok) throw new Error("No se pudo cargar el perfil");
         return res.json();
@@ -42,7 +44,7 @@ export default function EditarPerfilEmpresa({ userId, onClose }) {
     setError(null);
     try {
       const res = await fetch(
-        `http://192.168.1.6:3001/perfil-empresa/${userId}`,
+        `http://192.168.101.5:3001/perfil-empresa/${userId}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
