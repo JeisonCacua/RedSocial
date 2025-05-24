@@ -1,11 +1,11 @@
-// src/screens/Menu.js
-import React from "react";
+import React, { useState } from "react";
+import Header from "../components/Header"; // nuevo header modular
 import MostrarPerfil from "../components/mostrarPerfil";
 import Perfil from "../components/Perfil";
 import SubirPublicacion from "../components/SubirPublicacion";
 import Publicaciones from "../components/Publicaciones";
 
-const HEADER_SPACE = 80; // píxeles reservados arriba
+const HEADER_SPACE = 80;
 
 const styles = {
   container: {
@@ -40,17 +40,23 @@ const styles = {
 
 export default function Menu() {
   const userId = localStorage.getItem("userId");
+  const [busqueda, setBusqueda] = useState("");
+
+  // Aquí podrías usar `busqueda` para filtrar personas/publicaciones, etc.
 
   return (
-    <div style={styles.container}>
-      <aside style={styles.sidebar}>
-        <MostrarPerfil userId={userId} />
-        <Perfil userId={userId} />
-      </aside>
-      <main style={styles.mainContent}>
-        <SubirPublicacion userId={userId} />
-        <Publicaciones userId={userId} />
-      </main>
-    </div>
+    <>
+      <Header onBuscar={setBusqueda} />
+      <div style={styles.container}>
+        <aside style={styles.sidebar}>
+          <MostrarPerfil userId={userId} />
+          <Perfil userId={userId} />
+        </aside>
+        <main style={styles.mainContent}>
+          <SubirPublicacion userId={userId} />
+          <Publicaciones userId={userId} />
+        </main>
+      </div>
+    </>
   );
 }

@@ -11,12 +11,18 @@ export default function EditarPerfilUsuario({ userId, onClose }) {
     ciudad: "",
     direccion: "",
     numero: "",
-    foto_personal: "",
+    foto_personal: "", // aquí estará la cadena base64
     resumen: "",
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
+
+  // Validación
+  const [validationErrors, setValidationErrors] = useState({});
+
+  // Estado para preview imagen
+  const [imagenBase64, setImagenBase64] = useState(null);
 
   useEffect(() => {
     if (!userId) {
@@ -32,6 +38,7 @@ export default function EditarPerfilUsuario({ userId, onClose }) {
       })
       .then((data) => {
         setForm(data);
+        if (data.foto_personal) setImagenBase64(data.foto_personal);
       })
       .catch((e) => setError(e.message))
       .finally(() => setLoading(false));
@@ -40,19 +47,49 @@ export default function EditarPerfilUsuario({ userId, onClose }) {
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((f) => ({ ...f, [name]: value }));
+    setValidationErrors((ve) => ({ ...ve, [name]: false }));
+  };
+
+  // Convierte archivo a base64
+  const manejarArchivo = (e) => {
+    const archivo = e.target.files[0];
+    if (!archivo) return;
+
+    const reader = new FileReader();
+    reader.onloadend = () => {
+      setImagenBase64(reader.result);
+      setForm((f) => ({ ...f, foto_personal: reader.result }));
+    };
+    reader.readAsDataURL(archivo);
+  };
+
+  const validateFields = () => {
+    const errors = {};
+    if (!form.edad.trim()) errors.edad = true;
+    if (!form.ciudad.trim()) errors.ciudad = true;
+    if (!form.departamento.trim()) errors.departamento = true;
+    if (!form.estudio_o_trabajo_actual.trim()) errors.estudio_o_trabajo_actual = true;
+    setValidationErrors(errors);
+    return Object.keys(errors).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setSaving(true);
     setError(null);
+
+    if (!validateFields()) {
+      setError("Por favor complete los campos obligatorios marcados con *");
+      return;
+    }
+
+    setSaving(true);
     try {
       const res = await fetch(
         `http://192.168.101.5:3001/perfil-usuario/${userId}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(form),
+          body: JSON.stringify(form), // Enviamos todo con base64 en foto_personal
         }
       );
       if (!res.ok) throw new Error("Error al guardar");
@@ -69,25 +106,37 @@ export default function EditarPerfilUsuario({ userId, onClose }) {
     return <ModalWrapper onClose={onClose}>Cargando...</ModalWrapper>;
 
   const leftFields = [
-    { name: "edad", label: "Edad" },
-    { name: "estudios", label: "Estudios" },
-    { name: "experiencia", label: "Experiencia" },
-    { name: "habilidades", label: "Habilidades" },
-    { name: "estudio_o_trabajo_actual", label: "Estudio o Trabajo Actual" },
-    { name: "departamento", label: "Departamento" },
+    { name: "edad", label: "Edad", required: true },
+    { name: "estudios", label: "Estudios", required: false },
+    { name: "experiencia", label: "Experiencia", required: false },
+    { name: "habilidades", label: "Habilidades", required: false },
+    { name: "estudio_o_trabajo_actual", label: "Estudio o Trabajo Actual", required: true },
+    { name: "departamento", label: "Departamento", required: true },
   ];
+
   const rightFields = [
-    { name: "ciudad", label: "Ciudad" },
-    { name: "direccion", label: "Dirección" },
-    { name: "numero", label: "Número" },+
-    { name: "foto_personal", label: "Subir Foto" },
+    { name: "ciudad", label: "Ciudad", required: true },
+    { name: "direccion", label: "Dirección", required: false },
+    { name: "numero", label: "Número", required: false },
   ];
+
+  const renderLabel = (label, required, name) => (
+    <span>
+      {label}
+      {required && <span style={{ color: "red", marginLeft: 4 }}>*</span>}
+      {validationErrors[name] && (
+        <span style={{ color: "red", marginLeft: 8, fontWeight: "600", fontSize: 12 }}>
+          (obligatorio)
+        </span>
+      )}
+    </span>
+  );
 
   return (
     <ModalWrapper onClose={onClose}>
       <h2
         style={{
-          color: "#3B5311", // verde oscuro sólido sin sombra ni reflejo
+          color: "#000000",
           marginBottom: 20,
           fontWeight: "bold",
           fontSize: 22,
@@ -96,6 +145,7 @@ export default function EditarPerfilUsuario({ userId, onClose }) {
       >
         Editar perfil de Usuario
       </h2>
+
       {error && (
         <p
           style={{
@@ -117,7 +167,7 @@ export default function EditarPerfilUsuario({ userId, onClose }) {
         style={{
           display: "flex",
           gap: 24,
-          color: "#3B5311", // verde oscuro para textos
+          color: "#3B5311",
           fontSize: 14,
           fontWeight: "600",
           flexWrap: "wrap",
@@ -135,16 +185,16 @@ export default function EditarPerfilUsuario({ userId, onClose }) {
             gap: 16,
           }}
         >
-          {leftFields.map(({ name, label }) => (
+          {leftFields.map(({ name, label, required }) => (
             <div key={name} style={{ display: "flex", flexDirection: "column" }}>
               <label
                 htmlFor={name}
                 style={{
                   marginBottom: 6,
-                  color: "#3B5311",
+                  color: "#000000",
                 }}
               >
-                {label}
+                {renderLabel(label, required, name)}
               </label>
               <input
                 id={name}
@@ -154,8 +204,8 @@ export default function EditarPerfilUsuario({ userId, onClose }) {
                 value={form[name]}
                 onChange={handleChange}
                 style={{
-                  backgroundColor: "#F0F5E1", // verde muy claro / casi blanco
-                  border: "1.5px solid #A9C88B",
+                  backgroundColor: "#F0F5E1",
+                  border: validationErrors[name] ? "2px solid red" : "1.5px solid #A9C88B",
                   borderRadius: 6,
                   padding: "10px 14px",
                   color: "#3B5311",
@@ -179,16 +229,16 @@ export default function EditarPerfilUsuario({ userId, onClose }) {
             gap: 16,
           }}
         >
-          {rightFields.map(({ name, label }) => (
+          {rightFields.map(({ name, label, required }) => (
             <div key={name} style={{ display: "flex", flexDirection: "column" }}>
               <label
                 htmlFor={name}
                 style={{
                   marginBottom: 6,
-                  color: "#3B5311",
+                  color: "#000000",
                 }}
               >
-                {label}
+                {renderLabel(label, required, name)}
               </label>
               <input
                 id={name}
@@ -199,7 +249,7 @@ export default function EditarPerfilUsuario({ userId, onClose }) {
                 onChange={handleChange}
                 style={{
                   backgroundColor: "#F0F5E1",
-                  border: "1.5px solid #A9C88B",
+                  border: validationErrors[name] ? "2px solid red" : "1.5px solid #A9C88B",
                   borderRadius: 6,
                   padding: "10px 14px",
                   color: "#3B5311",
@@ -211,6 +261,47 @@ export default function EditarPerfilUsuario({ userId, onClose }) {
               />
             </div>
           ))}
+
+          {/* Subir foto */}
+          <div style={{ display: "flex", flexDirection: "column" }}>
+            <label
+              htmlFor="fileUpload"
+              style={{ marginBottom: 6, color: "#000000" }}
+            >
+              Subir foto
+            </label>
+
+            <input
+              type="file"
+              id="fileUpload"
+              style={{ display: "none" }}
+              accept="image/*"
+              onChange={manejarArchivo}
+            />
+
+            <button
+              type="button"
+              onClick={() => document.getElementById("fileUpload").click()}
+              style={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: 8,
+                padding: "10px",
+                backgroundColor: "#F0F5E1",
+                border: "1.5px solid #A9C88B",
+                borderRadius: 6,
+                cursor: "pointer",
+                fontSize: 14,
+                fontWeight: "600",
+                color: "#3B5311",
+              }}
+            >
+              📷 Subir Foto
+            </button>
+
+            
+          </div>
         </div>
 
         {/* Resumen ocupa todo el ancho */}
@@ -225,7 +316,7 @@ export default function EditarPerfilUsuario({ userId, onClose }) {
           <label
             htmlFor="resumen"
             style={{
-              color: "#3B5311",
+              color: "#000000",
               fontWeight: "600",
             }}
           >
@@ -267,8 +358,8 @@ export default function EditarPerfilUsuario({ userId, onClose }) {
             disabled={saving}
             style={{
               flex: 1,
-              backgroundColor: saving ? "#6B7D44" : "#202B0E",
-              color: "#CBD689",
+              backgroundColor: saving ? "#A1B682" : "#6B8B45",
+              color: "#E6F0D4",
               fontWeight: "700",
               padding: "12px 0",
               borderRadius: 8,
@@ -276,39 +367,40 @@ export default function EditarPerfilUsuario({ userId, onClose }) {
               cursor: saving ? "not-allowed" : "pointer",
               boxShadow: saving
                 ? "none"
-                : "0 4px 10px rgba(117, 139, 61, 0.7)",
+                : "0 4px 10px rgba(107, 139, 69, 0.6)",
               transition: "background-color 0.3s ease",
             }}
             onMouseEnter={(e) => {
-              if (!saving) e.currentTarget.style.backgroundColor = "#30401A";
+              if (!saving) e.currentTarget.style.backgroundColor = "#7DA253";
             }}
             onMouseLeave={(e) => {
-              if (!saving) e.currentTarget.style.backgroundColor = "#202B0E";
+              if (!saving) e.currentTarget.style.backgroundColor = "#6B8B45";
             }}
           >
             {saving ? "Guardando..." : "Guardar"}
           </button>
+
           <button
             type="button"
             onClick={onClose}
             disabled={saving}
             style={{
               flex: 1,
-              backgroundColor: "#4B5320",
-              color: "#CBD689",
+              backgroundColor: "#7C8B53",
+              color: "#E6F0D4",
               fontWeight: "700",
               padding: "12px 0",
               borderRadius: 8,
               border: "none",
               cursor: saving ? "not-allowed" : "pointer",
-              boxShadow: "0 2px 8px rgba(0,0,0,0.3)",
+              boxShadow: "0 2px 8px rgba(124, 139, 83, 0.5)",
               transition: "background-color 0.3s ease",
             }}
             onMouseEnter={(e) => {
-              if (!saving) e.currentTarget.style.backgroundColor = "#3A4414";
+              if (!saving) e.currentTarget.style.backgroundColor = "#8FAE69";
             }}
             onMouseLeave={(e) => {
-              if (!saving) e.currentTarget.style.backgroundColor = "#4B5320";
+              if (!saving) e.currentTarget.style.backgroundColor = "#7C8B53";
             }}
           >
             Cancelar
@@ -325,7 +417,7 @@ function ModalWrapper({ children, onClose }) {
       style={{
         position: "fixed",
         inset: 0,
-        backgroundColor: "rgba(0,0,0,0.6)", // fondo negro translúcido neutro, nada verde
+        backgroundColor: "rgba(0,0,0,0.6)",
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
@@ -336,7 +428,7 @@ function ModalWrapper({ children, onClose }) {
     >
       <div
         style={{
-          backgroundColor: "#fff", // fondo blanco puro para la tarjeta
+          backgroundColor: "#fff",
           borderRadius: 16,
           padding: 25,
           maxWidth: 900,
@@ -344,7 +436,7 @@ function ModalWrapper({ children, onClose }) {
           boxSizing: "border-box",
           boxShadow:
             "0 8px 20px rgba(66, 82, 19, 0.3), inset 0 0 8px rgba(169, 200, 139, 0.15)",
-          color: "#3B5311", // verde oscuro para textos
+          color: "#3B5311",
           fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
           userSelect: "none",
         }}

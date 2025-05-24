@@ -40,7 +40,11 @@ export default function MostrarPerfil({ userId }) {
       <div style={{ height: 80, backgroundColor: "#556b2f" }} />
 
       <img
-        src={esNatural ? perfil.foto_personal : perfil.foto_logo_empresa}
+        src={
+          esNatural
+            ? perfil.foto_personal || "https://via.placeholder.com/70?text=Sin+Foto"
+            : perfil.foto_logo_empresa || "https://via.placeholder.com/70?text=Logo"
+        }
         alt="Perfil"
         style={{
           width: 70,
@@ -54,6 +58,8 @@ export default function MostrarPerfil({ userId }) {
           transform: "translateX(-50%)",
         }}
       />
+
+  
 
       <div
         style={{

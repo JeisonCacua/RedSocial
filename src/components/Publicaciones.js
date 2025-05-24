@@ -48,9 +48,7 @@ export default function Publicaciones({ userId }) {
             🔖
           </div>
 
-          <div
-            style={{ display: "flex", alignItems: "center", marginBottom: 10 }}
-          >
+          <div style={{ display: "flex", alignItems: "center", marginBottom: 10 }}>
             <div
               style={{
                 width: 24,
@@ -76,7 +74,13 @@ export default function Publicaciones({ userId }) {
             <img
               src={post.imagen}
               alt="adjunta"
-              style={{ width: "100%", borderRadius: 8, marginBottom: 10 }}
+              style={{
+                width: "100%",       // ancho completo del contenedor
+                maxHeight: 300,      // altura máxima en píxeles, puedes ajustar
+                borderRadius: 8,
+                marginBottom: 10,
+                objectFit: "contain" // ajusta la imagen sin recortarla
+              }}
             />
           )}
         </div>
