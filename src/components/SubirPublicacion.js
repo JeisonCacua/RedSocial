@@ -23,7 +23,7 @@ export default function SubirPublicacion({ userId, onNuevaPublicacion }) {
 
     setLoading(true);
     try {
-      const response = await fetch("http://192.168.101.5:3001/publicaciones", {
+      const response = await fetch("http://192.168.1.6:3001/publicaciones", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

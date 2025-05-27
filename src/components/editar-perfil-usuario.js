@@ -35,7 +35,7 @@ export default function EditarPerfilUsuario({ userId, onClose }) {
       return;
     }
 
-    fetch(`http://192.168.101.5:3001/perfil-usuario/${userId}`)
+    fetch(`http://192.168.1.6:3001/perfil-usuario/${userId}`)
       .then((res) => {
         if (!res.ok) throw new Error("No se pudo cargar el perfil");
         return res.json();
@@ -72,7 +72,8 @@ export default function EditarPerfilUsuario({ userId, onClose }) {
     if (!form.edad.trim()) errors.edad = true;
     if (!form.ciudad.trim()) errors.ciudad = true;
     if (!form.departamento.trim()) errors.departamento = true;
-    if (!form.estudio_o_trabajo_actual.trim()) errors.estudio_o_trabajo_actual = true;
+    if (!form.estudio_o_trabajo_actual.trim())
+      errors.estudio_o_trabajo_actual = true;
     setValidationErrors(errors);
     return Object.keys(errors).length === 0;
   };
@@ -88,11 +89,14 @@ export default function EditarPerfilUsuario({ userId, onClose }) {
 
     setSaving(true);
     try {
-      const res = await fetch(`http://192.168.101.5:3001/perfil-usuario/${userId}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
-      });
+      const res = await fetch(
+        `http://192.168.1.6:3001/perfil-usuario/${userId}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(form),
+        }
+      );
       if (!res.ok) throw new Error("Error al guardar");
 
       setShowSuccess(true);
@@ -100,7 +104,7 @@ export default function EditarPerfilUsuario({ userId, onClose }) {
         setShowSuccess(false);
         onClose();
       }, 500);
- window.location.reload();
+      window.location.reload();
     } catch (err) {
       setError(err.message);
     } finally {
@@ -109,11 +113,7 @@ export default function EditarPerfilUsuario({ userId, onClose }) {
   };
 
   if (loading)
-    return (
-      <ModalWrapper onClose={onClose}>
-        Cargando...
-      </ModalWrapper>
-    );
+    return <ModalWrapper onClose={onClose}>Cargando...</ModalWrapper>;
 
   const leftFields = [
     { name: "edad", label: "Edad", required: true },
@@ -421,7 +421,9 @@ export default function EditarPerfilUsuario({ userId, onClose }) {
                 borderRadius: 8,
                 border: "none",
                 cursor: saving ? "not-allowed" : "pointer",
-                boxShadow: saving ? "none" : "0 4px 10px rgba(107, 139, 69, 0.6)",
+                boxShadow: saving
+                  ? "none"
+                  : "0 4px 10px rgba(107, 139, 69, 0.6)",
                 transition: "background-color 0.3s ease",
               }}
               onMouseEnter={(e) => {

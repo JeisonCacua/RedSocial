@@ -13,7 +13,7 @@ export default function VerPerfilEmpresa({ userId, onClose }) {
   const [confirmDeleteId, setConfirmDeleteId] = useState(null);
 
   useEffect(() => {
-    fetch(`http://192.168.101.5:3001/perfil-empresa/${userId}`)
+    fetch(`http://192.168.1.6:3001/perfil-empresa/${userId}`)
       .then((res) => {
         if (!res.ok) throw new Error("No se pudo cargar el perfil");
         return res.json();
@@ -22,7 +22,7 @@ export default function VerPerfilEmpresa({ userId, onClose }) {
       .catch((e) => setError(e.message))
       .finally(() => setLoadingPerfil(false));
 
-    fetch(`http://192.168.101.5:3001/publicaciones`)
+    fetch(`http://192.168.1.6:3001/publicaciones`)
       .then((res) => res.json())
       .then((data) => {
         const publicacionesUsuario = data.filter(
@@ -37,7 +37,7 @@ export default function VerPerfilEmpresa({ userId, onClose }) {
   // Función para eliminar publicación
   const borrarPublicacion = async (id) => {
     try {
-      const res = await fetch(`http://192.168.101.5:3001/publicaciones/${id}`, {
+      const res = await fetch(`http://192.168.1.6:3001/publicaciones/${id}`, {
         method: "DELETE",
       });
       if (!res.ok) throw new Error("Error al eliminar");
@@ -85,18 +85,17 @@ export default function VerPerfilEmpresa({ userId, onClose }) {
         style={{ display: "flex", gap: 20, marginBottom: 20, flexWrap: "wrap" }}
       >
         {perfil.foto_logo_empresa && (
-         <img
-  src={perfil.foto_logo_empresa || "/perfil.jpg"}
-  alt="Logo empresa"
-  style={{
-    width: 150,
-    height: 150,
-    borderRadius: 16,
-    objectFit: "contain",
-    border: "2px solid #a7b36f",
-  }}
-/>
-
+          <img
+            src={perfil.foto_logo_empresa || "/perfil.jpg"}
+            alt="Logo empresa"
+            style={{
+              width: 150,
+              height: 150,
+              borderRadius: 16,
+              objectFit: "contain",
+              border: "2px solid #a7b36f",
+            }}
+          />
         )}
 
         <div style={{ flex: 1, minWidth: 280 }}>
@@ -104,10 +103,12 @@ export default function VerPerfilEmpresa({ userId, onClose }) {
             <strong>Nombre empresa:</strong> {perfil.nombreEmpresa}
           </p>
           <p>
-            <strong>Dirección:</strong> {perfil.direccionEmpresa || "No especificado"}
+            <strong>Dirección:</strong>{" "}
+            {perfil.direccionEmpresa || "No especificado"}
           </p>
           <p>
-            <strong>Teléfono:</strong> {perfil.telefonoEmpresa || "No especificado"}
+            <strong>Teléfono:</strong>{" "}
+            {perfil.telefonoEmpresa || "No especificado"}
           </p>
         </div>
       </div>
@@ -209,7 +210,9 @@ export default function VerPerfilEmpresa({ userId, onClose }) {
             <p style={{ marginBottom: 20 }}>
               ¿Seguro que quieres eliminar esta publicación?
             </p>
-            <div style={{ display: "flex", justifyContent: "flex-end", gap: 10 }}>
+            <div
+              style={{ display: "flex", justifyContent: "flex-end", gap: 10 }}
+            >
               <button
                 onClick={() => setConfirmDeleteId(null)}
                 style={{

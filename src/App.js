@@ -5,7 +5,7 @@ import {
   Route,
   useNavigate,
   useLocation,
-  Outlet, // ← añadido
+  Outlet,
 } from "react-router-dom";
 import Login from "./components/Login";
 import Register from "./components/Register";
@@ -44,21 +44,6 @@ const styles = {
     display: "flex",
     gap: 12,
   },
-  headerButton: {
-    padding: "6px 12px",
-    borderRadius: 4,        
-    marginLeft: 8,
-    fontSize: 14,
-    cursor: "pointer"
-  },
-  loginBtn: {
-    backgroundColor: "8ca347",
-    color: "#fff",
-  },
-  registerBtn: {
-    backgroundColor: "#8ca347",
-    color: "#fff",
-  },
   bannerContainer: {
     width: "100%",
     maxWidth: 1200,
@@ -91,9 +76,6 @@ const styles = {
     justifyContent: "center",
     height: 550,
   },
-  content: {
-    flexGrow: 1,
-  },
 };
 
 function TopHeader() {
@@ -101,38 +83,129 @@ function TopHeader() {
   const location = useLocation();
 
   return (
-    <header style={styles.topHeader}>
-  <div>WjB</div>
-  <div style={styles.headerButtons}>
-    <button
-      onClick={() => navigate("/")}
-      style={{
-        ...styles.headerButton,
-        border: "1px solid #8ca347",
-        backgroundColor: location.pathname === "/" ? "#8ca347" : "transparent",
-        color: location.pathname === "/" ? "#ffffff" : "#c0c8a4",
-        fontWeight: location.pathname === "/" ? 700 : 600,
-        textDecoration: location.pathname === "/" ? "underline" : "none"
-      }}
-    >
-      Iniciar Sesión
-    </button>
-    <button
-      onClick={() => navigate("/register")}
-      style={{
-        ...styles.headerButton,
-        border: "1px solid #8ca347",
-        backgroundColor: location.pathname === "/register" ? "#73943d" : "#8ca347",
-        color: "#ffffff",
-        fontWeight: location.pathname === "/register" ? 700 : 600,
-        textDecoration: location.pathname === "/register" ? "underline" : "none"
-      }}
-    >
-      Registrarse
-    </button>
-  </div>
-</header>
+    <>
+      {/* Estilos CSS para los botones incluidos en el componente */}
+      <style>{`
+        .button {
+          padding: 1rem 2rem;
+          border-radius: 0.5rem;
+          border: none;
+          font-size: 1rem;
+          font-weight: 400;
+          color: #f4f0ff;
+          text-align: center;
+          position: relative;
+          cursor: pointer;
+          background-color: #8ca347;
+          transition: color 0.3s ease;
+          user-select: none;
+          outline: none;
+          overflow: hidden;
+        }
+        .button::before {
+          content: "";
+          display: block;
+          position: absolute;
+          left: 0;
+          top: 0;
+          height: 100%;
+          width: 100%;
+          border-radius: 0.5rem;
+          background: linear-gradient(
+              180deg,
+              rgba(140, 163, 71, 0) 0%,
+              rgba(140, 163, 71, 0.42) 100%
+            ),
+            rgba(47, 255, 255, 0.24);
+          box-shadow: inset 0 0 12px rgba(151, 200, 255, 0.44);
+          z-index: -1;
+        }
+        .button::after {
+          content: "";
+          display: block;
+          position: absolute;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: linear-gradient(
+              180deg,
+              rgba(140, 163, 71, 0) 0%,
+              rgba(140, 163, 71, 0.42) 100%
+            ),
+            rgba(47, 255, 255, 0.24);
+          box-shadow: inset 0 0 12px rgba(151, 200, 255, 0.44);
+          border-radius: 0.5rem;
+          opacity: 0;
+          z-index: -1;
+          transition: all 0.3s ease-in;
+        }
+        .button:hover::after {
+          opacity: 1;
+        }
+        .button-border {
+          position: absolute;
+          top: 0;
+          left: 0;
+          height: 100%;
+          width: 100%;
+          border-radius: 0.5rem;
+          z-index: -1;
+        }
+        .button-border::before {
+          content: "";
+          position: absolute;
+          border-radius: 0.5rem;
+          padding: 1px;
+          inset: 0;
+          background: linear-gradient(
+              180deg,
+              rgba(184, 238, 255, 0.24) 0%,
+              rgba(184, 238, 255, 0) 100%
+            ),
+            linear-gradient(0deg, rgba(184, 238, 255, 0.32), rgba(184, 238, 255, 0.32));
+          -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+          -webkit-mask-composite: xor;
+          pointer-events: none;
+        }
+      `}</style>
 
+      <header style={styles.topHeader}>
+        <div>WjB</div>
+        <div style={styles.headerButtons}>
+          <button
+            className="button"
+            style={{
+              backgroundColor:
+                location.pathname === "/" ? "#73943d" : "#8ca347",
+              fontWeight: location.pathname === "/" ? 700 : 400,
+              textDecoration: location.pathname === "/" ? "underline" : "none",
+              position: "relative",
+            }}
+            onClick={() => navigate("/")}
+          >
+            Iniciar Sesión
+            <span className="button-border"></span>
+          </button>
+
+          <button
+            className="button"
+            style={{
+              backgroundColor:
+                location.pathname === "/register" ? "#73943d" : "#8ca347",
+              fontWeight: location.pathname === "/register" ? 700 : 400,
+              textDecoration:
+                location.pathname === "/register" ? "underline" : "none",
+              position: "relative",
+            }}
+            onClick={() => navigate("/register")}
+          >
+            Registrarse
+            <span className="button-border"></span>
+          </button>
+        </div>
+      </header>
+    </>
   );
 }
 
@@ -149,7 +222,6 @@ function Banner() {
   );
 }
 
-// Nuevo layout para Login y Register
 function AuthLayout() {
   return (
     <div style={styles.appContainer}>
@@ -166,13 +238,10 @@ export default function App() {
   return (
     <Router>
       <Routes>
-        {/* Rutas de autenticación dentro de AuthLayout */}
         <Route element={<AuthLayout />}>
           <Route path="/" element={<Login />} />
           <Route path="/register" element={<Register />} />
         </Route>
-
-        {/* Ruta a Menu sin el wrapper de AuthLayout */}
         <Route path="/menu" element={<Menu />} />
       </Routes>
     </Router>

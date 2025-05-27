@@ -18,7 +18,7 @@ export default function Login() {
     setLoading(true);
 
     try {
-      const response = await fetch("http://192.168.101.5:3001/login", {
+      const response = await fetch("http://192.168.1.6:3001/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -91,7 +91,7 @@ export default function Login() {
         style={{
           width: "100%",
           padding: 12,
-          marginTop: 30,  
+          marginTop: 30,
           backgroundColor: loading ? "#556b2f" : "#4a5336",
           color: "#c0c8a4",
           fontWeight: "700",

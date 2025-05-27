@@ -13,7 +13,7 @@ export default function VerPerfilUsuario({ userId, onClose }) {
   const [confirmDeleteId, setConfirmDeleteId] = useState(null);
 
   useEffect(() => {
-    fetch(`http://192.168.101.5:3001/perfil-usuario/${userId}`)
+    fetch(`http://192.168.1.6:3001/perfil-usuario/${userId}`)
       .then((res) => {
         if (!res.ok) throw new Error("No se pudo cargar el perfil");
         return res.json();
@@ -22,7 +22,7 @@ export default function VerPerfilUsuario({ userId, onClose }) {
       .catch((e) => setError(e.message))
       .finally(() => setLoadingPerfil(false));
 
-    fetch(`http://192.168.101.5:3001/publicaciones`)
+    fetch(`http://192.168.1.6:3001/publicaciones`)
       .then((res) => res.json())
       .then((data) => {
         const publicacionesUsuario = data.filter(
@@ -37,7 +37,7 @@ export default function VerPerfilUsuario({ userId, onClose }) {
   // Función para eliminar publicación
   const borrarPublicacion = async (id) => {
     try {
-      const res = await fetch(`http://192.168.101.5:3001/publicaciones/${id}`, {
+      const res = await fetch(`http://192.168.1.6:3001/publicaciones/${id}`, {
         method: "DELETE",
       });
       if (!res.ok) throw new Error("Error al eliminar");
@@ -96,7 +96,6 @@ export default function VerPerfilUsuario({ userId, onClose }) {
               border: "2px solid #a7b36f",
             }}
           />
-
         )}
 
         <div style={{ flex: 1, minWidth: 280 }}>
@@ -107,13 +106,16 @@ export default function VerPerfilUsuario({ userId, onClose }) {
             <strong>Estudios:</strong> {perfil.estudios || "No especificado"}
           </p>
           <p>
-            <strong>Experiencia:</strong> {perfil.experiencia || "No especificado"}
+            <strong>Experiencia:</strong>{" "}
+            {perfil.experiencia || "No especificado"}
           </p>
           <p>
-            <strong>Habilidades:</strong> {perfil.habilidades || "No especificado"}
+            <strong>Habilidades:</strong>{" "}
+            {perfil.habilidades || "No especificado"}
           </p>
           <p>
-            <strong>Estudio o trabajo actual:</strong> {perfil.estudio_o_trabajo_actual}
+            <strong>Estudio o trabajo actual:</strong>{" "}
+            {perfil.estudio_o_trabajo_actual}
           </p>
           <p>
             <strong>Departamento:</strong> {perfil.departamento}
@@ -240,7 +242,9 @@ export default function VerPerfilUsuario({ userId, onClose }) {
             <p style={{ marginBottom: 20 }}>
               ¿Seguro que quieres eliminar esta publicación?
             </p>
-            <div style={{ display: "flex", justifyContent: "flex-end", gap: 10 }}>
+            <div
+              style={{ display: "flex", justifyContent: "flex-end", gap: 10 }}
+            >
               <button
                 onClick={() => setConfirmDeleteId(null)}
                 style={{

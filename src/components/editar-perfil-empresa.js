@@ -23,7 +23,7 @@ export default function EditarPerfilEmpresa({ userId, onClose }) {
       return;
     }
 
-    fetch(`http://192.168.101.5:3001/perfil-empresa/${userId}`)
+    fetch(`http://192.168.1.6:3001/perfil-empresa/${userId}`)
       .then((res) => {
         if (!res.ok) throw new Error("No se pudo cargar el perfil");
         return res.json();
@@ -78,7 +78,7 @@ export default function EditarPerfilEmpresa({ userId, onClose }) {
     setSaving(true);
     try {
       const res = await fetch(
-        `http://192.168.101.5:3001/perfil-empresa/${userId}`,
+        `http://192.168.1.6:3001/perfil-empresa/${userId}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -192,7 +192,10 @@ export default function EditarPerfilEmpresa({ userId, onClose }) {
               required: true,
             },
           ].map(({ name, label, required }) => (
-            <div key={name} style={{ display: "flex", flexDirection: "column" }}>
+            <div
+              key={name}
+              style={{ display: "flex", flexDirection: "column" }}
+            >
               <label
                 htmlFor={name}
                 style={{
@@ -326,7 +329,9 @@ export default function EditarPerfilEmpresa({ userId, onClose }) {
                 borderRadius: 8,
                 border: "none",
                 cursor: saving ? "not-allowed" : "pointer",
-                boxShadow: saving ? "none" : "0 4px 10px rgba(107, 139, 69, 0.6)",
+                boxShadow: saving
+                  ? "none"
+                  : "0 4px 10px rgba(107, 139, 69, 0.6)",
                 transition: "background-color 0.3s ease",
                 userSelect: "none",
               }}
