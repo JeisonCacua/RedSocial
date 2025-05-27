@@ -23,7 +23,7 @@ export default function EditarPerfilEmpresa({ userId, onClose }) {
       return;
     }
 
-    fetch(`http://192.168.1.6:3001/perfil-empresa/${userId}`)
+    fetch(`http://192.168.101.5:3001/perfil-empresa/${userId}`)
       .then((res) => {
         if (!res.ok) throw new Error("No se pudo cargar el perfil");
         return res.json();
@@ -87,10 +87,8 @@ export default function EditarPerfilEmpresa({ userId, onClose }) {
       );
       if (!res.ok) throw new Error("Error al guardar");
 
-      // Mostrar mensaje éxito
       setShowSuccess(true);
 
-      // Esperar 2 segundos para que el usuario vea el mensaje
       setTimeout(() => {
         setShowSuccess(false);
         onClose();
@@ -108,7 +106,6 @@ export default function EditarPerfilEmpresa({ userId, onClose }) {
 
   return (
     <>
-      {/* Modal éxito arriba del modal principal */}
       {showSuccess && (
         <div
           style={{
@@ -289,23 +286,64 @@ export default function EditarPerfilEmpresa({ userId, onClose }) {
             >
               📷 Subir Logo
             </button>
+
             {validationErrors.foto_logo_empresa && (
               <span style={{ color: "red", fontSize: 12, marginTop: 4 }}>
                 (obligatorio)
               </span>
             )}
+
+            {/* Preview logo con botón quitar */}
             {imagenBase64 && (
-              <img
-                src={imagenBase64}
-                alt="Logo Empresa"
+              <div
                 style={{
+                  position: "relative",
+                  display: "inline-block",
                   marginTop: 12,
-                  maxWidth: "100%",
-                  maxHeight: 150,
-                  borderRadius: 8,
-                  boxShadow: "0 2px 8px rgba(107, 139, 69, 0.3)",
                 }}
-              />
+              >
+                <img
+                  src={imagenBase64}
+                  alt="Logo Empresa"
+                  style={{
+                    maxWidth: "100%",
+                    maxHeight: 150,
+                    borderRadius: 8,
+                    boxShadow: "0 2px 8px rgba(107, 139, 69, 0.3)",
+                    display: "block",
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    setImagenBase64(null);
+                    setForm((f) => ({ ...f, foto_logo_empresa: "" }));
+                    setValidationErrors((ve) => ({ ...ve, foto_logo_empresa: false }));
+                  }}
+                  style={{
+                    position: "absolute",
+                    top: 6,
+                    right: 6,
+                    backgroundColor: "#FF6B6B",
+                    border: "none",
+                    borderRadius: "50%",
+                    width: 24,
+                    height: 24,
+                    color: "white",
+                    fontWeight: "bold",
+                    cursor: "pointer",
+                    lineHeight: "24px",
+                    textAlign: "center",
+                    padding: 0,
+                    userSelect: "none",
+                    boxShadow: "0 0 6px rgba(255, 107, 107, 0.7)",
+                  }}
+                  title="Quitar logo"
+                  aria-label="Quitar logo"
+                >
+                  ×
+                </button>
+              </div>
             )}
           </div>
 
@@ -401,7 +439,7 @@ function ModalWrapper({ children, onClose }) {
           padding: 25,
           maxWidth: 900,
           width: "100%",
-          maxHeight: "calc(80vh - 60px)", // ajustado para no pegar al header
+          maxHeight: "calc(80vh - 60px)",
           overflowY: "auto",
           boxSizing: "border-box",
           boxShadow:
@@ -409,7 +447,7 @@ function ModalWrapper({ children, onClose }) {
           color: "#3B5311",
           fontFamily: "'Segoe UI', Tahoma, Geneva, Verdana, sans-serif",
           userSelect: "none",
-          marginTop: 20, // opcional, para separación extra
+          marginTop: 20,
         }}
         onClick={(e) => e.stopPropagation()}
       >

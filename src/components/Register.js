@@ -57,8 +57,12 @@ export default function Register() {
   };
 
   const handleChangeUsuario = (e) => {
-    const { name, value } = e.target;
-    setUsuarioForm((f) => ({ ...f, [name]: value }));
+    const { name, value, type } = e.target;
+    if (type === "radio") {
+      setUsuarioForm((f) => ({ ...f, estudio_o_trabajo_actual: value }));
+    } else {
+      setUsuarioForm((f) => ({ ...f, [name]: value }));
+    }
   };
 
   const handleChangeEmpresa = (e) => {
@@ -92,6 +96,36 @@ export default function Register() {
       setErrorMessage("Por favor ingrese su correo electrónico");
       return;
     }
+
+    // Validaciones adicionales para persona natural
+    if (tipoUsuario === "Persona Natural") {
+      if (!usuarioForm.nombreCompleto.trim()) {
+        setErrorMessage("El nombre completo es obligatorio.");
+        return;
+      }
+      if (!usuarioForm.edad.trim()) {
+        setErrorMessage("La edad es obligatoria.");
+        return;
+      }
+      if (!usuarioForm.ciudad.trim()) {
+        setErrorMessage("La ciudad es obligatoria.");
+        return;
+      }
+      if (!usuarioForm.departamento.trim()) {
+        setErrorMessage("El departamento es obligatorio.");
+        return;
+      }
+      if (!usuarioForm.estudio_o_trabajo_actual.trim()) {
+        setErrorMessage("Por favor seleccione si trabaja o estudia.");
+        return;
+      }
+    }
+
+    if (!correo.includes("@")) {
+      setErrorMessage("El correo debe contener '@'.");
+      return;
+    }
+
     if (!password || !confirmarPassword) {
       setErrorMessage("Por favor ingrese y confirme la contraseña");
       return;
@@ -100,16 +134,33 @@ export default function Register() {
       setErrorMessage("Las contraseñas no coinciden");
       return;
     }
+    if (tipoUsuario === "Empresa") {
+      if (!empresaForm.nombreRepresentante.trim()) {
+        setErrorMessage("El nombre del representante legal es obligatorio.");
+        return;
+      }
+      if (!empresaForm.nombreEmpresa.trim()) {
+        setErrorMessage("El nombre de la empresa es obligatorio.");
+        return;
+      }
+      if (!empresaForm.direccionEmpresa.trim()) {
+        setErrorMessage("La direccion  de la empresa es obligatorio.");
+        return;
+      }
+      if (!empresaForm.telefonoEmpresa.trim()) {
+        setErrorMessage("El numero  de la empresa es obligatorio.");
+        return;
+      }
+    }
 
-    // Nombre base para el usuario
+
     let nombreParaBackend =
       tipoUsuario === "Persona Natural"
         ? usuarioForm.nombreCompleto
         : empresaForm.nombreRepresentante;
 
     try {
-      // 1. Crear usuario
-      const response = await fetch("http://192.168.1.6:3001/register", {
+      const response = await fetch("http://192.168.101.5:3001/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -128,11 +179,10 @@ export default function Register() {
         return;
       }
 
-      const userId = data.userId; // ID creado en backend
+      const userId = data.userId;
 
-      // 2. Actualizar perfil con datos adicionales
       if (tipoUsuario === "Persona Natural") {
-        await fetch(`http://192.168.1.6:3001/perfil-usuario/${userId}`, {
+        await fetch(`http://192.168.101.5:3001/perfil-usuario/${userId}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -146,23 +196,22 @@ export default function Register() {
             direccion: usuarioForm.direccion,
             numero: usuarioForm.numero,
             resumen: usuarioForm.resumen,
-            foto_personal: "", // puedes incluir imagen base64 si tienes
+            foto_personal: "",
           }),
         });
       } else if (tipoUsuario === "Empresa") {
-        await fetch(`http://192.168.1.6:3001/perfil-empresa/${userId}`, {
+        await fetch(`http://192.168.101.5:3001/perfil-empresa/${userId}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             nombreEmpresa: empresaForm.nombreEmpresa,
             direccionEmpresa: empresaForm.direccionEmpresa,
             telefonoEmpresa: empresaForm.telefonoEmpresa,
-            foto_logo_empresa: "", // incluir si tienes
+            foto_logo_empresa: "",
           }),
         });
       }
 
-      // Éxito completo
       setSuccessMessage("Usuario y perfil creados correctamente");
       setTipoUsuario("");
       setCorreo("");
@@ -189,7 +238,7 @@ export default function Register() {
       });
 
       setTimeout(() => {
-        navigate("/"); // o ruta que quieras
+        navigate("/");
       }, 1500);
     } catch (error) {
       setErrorMessage("Error en la conexión con el servidor");
@@ -199,7 +248,8 @@ export default function Register() {
   return (
     <div
       style={{
-        maxWidth: 600,
+       width: tipoUsuario === "Persona Natural" ? "350px" : "350px",
+        maxHeight: 900,
         margin: "auto",
         padding: 20,
         color: "#c0c8a4",
@@ -209,6 +259,7 @@ export default function Register() {
         boxShadow: "0 0 10px rgba(0,0,0,0.5)",
         display: "flex",
         flexDirection: "column",
+        overflowY: "auto",
       }}
     >
       <label
@@ -234,7 +285,7 @@ export default function Register() {
             htmlFor="nombreCompleto"
             style={{ marginBottom: 6, display: "block", fontWeight: "600" }}
           >
-            Nombre y Apellido (Completos):
+            Nombre y Apellido (Completos): <span style={{ color: "red" }}>*</span>
           </label>
           <input
             id="nombreCompleto"
@@ -246,117 +297,121 @@ export default function Register() {
             style={inputStyle}
           />
 
-          <div
-            style={{
-              paddingRight: 8,
-              marginBottom: 12,
-              display: "flex",
-              flexDirection: "column",
-              gap: 10,
-            }}
-          >
-            <label style={{ fontWeight: "600" }}>Edad:</label>
-            <input
-              type="text"
-              name="edad"
-              placeholder="Edad"
-              value={usuarioForm.edad}
-              onChange={handleChangeUsuario}
-              style={inputStyle}
-            />
+          <label style={{ fontWeight: "600" }}>
+            Edad: <span style={{ color: "red" }}>*</span>
+          </label>
+          <input
+            type="text"
+            name="edad"
+            placeholder="Edad"
+            value={usuarioForm.edad}
+            onChange={handleChangeUsuario}
+            style={inputStyle}
+          />
 
-            <label style={{ fontWeight: "600" }}>Ciudad:</label>
-            <input
-              type="text"
-              name="ciudad"
-              placeholder="Ciudad"
-              value={usuarioForm.ciudad}
-              onChange={handleChangeUsuario}
-              style={inputStyle}
-            />
+          <label style={{ fontWeight: "600" }}>
+            Ciudad: <span style={{ color: "red" }}>*</span>
+          </label>
+          <input
+            type="text"
+            name="ciudad"
+            placeholder="Ciudad"
+            value={usuarioForm.ciudad}
+            onChange={handleChangeUsuario}
+            style={inputStyle}
+          />
 
-            <label style={{ fontWeight: "600" }}>Estudios:</label>
-            <input
-              type="text"
-              name="estudios"
-              placeholder="Estudios"
-              value={usuarioForm.estudios}
-              onChange={handleChangeUsuario}
-              style={inputStyle}
-            />
+          <label style={{ fontWeight: "600" }}>Estudios:</label>
+          <input
+            type="text"
+            name="estudios"
+            placeholder="Estudios"
+            value={usuarioForm.estudios}
+            onChange={handleChangeUsuario}
+            style={inputStyle}
+          />
 
-            <label style={{ fontWeight: "600" }}>Dirección:</label>
-            <input
-              type="text"
-              name="direccion"
-              placeholder="Dirección"
-              value={usuarioForm.direccion}
-              onChange={handleChangeUsuario}
-              style={inputStyle}
-            />
+          <label style={{ fontWeight: "600" }}>Dirección:</label>
+          <input
+            type="text"
+            name="direccion"
+            placeholder="Dirección"
+            value={usuarioForm.direccion}
+            onChange={handleChangeUsuario}
+            style={inputStyle}
+          />
 
-            <label style={{ fontWeight: "600" }}>Experiencia:</label>
-            <input
-              type="text"
-              name="experiencia"
-              placeholder="Experiencia"
-              value={usuarioForm.experiencia}
-              onChange={handleChangeUsuario}
-              style={inputStyle}
-            />
+          <label style={{ fontWeight: "600" }}>Experiencia:</label>
+          <input
+            type="text"
+            name="experiencia"
+            placeholder="Experiencia"
+            value={usuarioForm.experiencia}
+            onChange={handleChangeUsuario}
+            style={inputStyle}
+          />
 
-            <label style={{ fontWeight: "600" }}>Número:</label>
-            <input
-              type="text"
-              name="numero"
-              placeholder="Número"
-              value={usuarioForm.numero}
-              onChange={handleChangeUsuario}
-              style={inputStyle}
-            />
+          <label style={{ fontWeight: "600" }}>Número:</label>
+          <input
+            type="text"
+            name="numero"
+            placeholder="Número"
+            value={usuarioForm.numero}
+            onChange={handleChangeUsuario}
+            style={inputStyle}
+          />
 
-            <label style={{ fontWeight: "600" }}>Habilidades:</label>
-            <input
-              type="text"
-              name="habilidades"
-              placeholder="Habilidades"
-              value={usuarioForm.habilidades}
-              onChange={handleChangeUsuario}
-              style={inputStyle}
-            />
+          <label style={{ fontWeight: "600" }}>
+            Habilidades:
+          </label>
+          <input
+            type="text"
+            name="habilidades"
+            placeholder="Habilidades"
+            value={usuarioForm.habilidades}
+            onChange={handleChangeUsuario}
+            style={inputStyle}
+          />
 
-            <label style={{ fontWeight: "600" }}>Resumen:</label>
-            <textarea
-              name="resumen"
-              placeholder="Resumen"
-              value={usuarioForm.resumen}
-              onChange={handleChangeUsuario}
-              rows={3}
-              style={{ ...inputStyle, resize: "vertical" }}
-            />
 
-            <label style={{ fontWeight: "600" }}>
-              Estudio o Trabajo Actual:
+
+          <label style={{ marginTop: 10, fontWeight: "600" }}>
+            ¿Trabaja o estudia? <span style={{ color: "red" }}>*</span>
+          </label>
+          <div style={{ display: "flex", gap: 20, marginBottom: 12 }}>
+            <label>
+              <input
+                type="radio"
+                name="trabajaEstudia"
+                value="Trabaja"
+                checked={usuarioForm.estudio_o_trabajo_actual === "Trabaja"}
+                onChange={handleChangeUsuario}
+              />{" "}
+              Trabaja
             </label>
-            <input
-              type="text"
-              name="estudio_o_trabajo_actual"
-              placeholder="Estudio o Trabajo Actual"
-              value={usuarioForm.estudio_o_trabajo_actual}
-              onChange={handleChangeUsuario}
-              style={inputStyle}
-            />
-
-            <label style={{ fontWeight: "600" }}>Departamento:</label>
-            <input
-              type="text"
-              name="departamento"
-              placeholder="Departamento"
-              value={usuarioForm.departamento}
-              onChange={handleChangeUsuario}
-              style={inputStyle}
-            />
+            <label>
+              <input
+                type="radio"
+                name="trabajaEstudia"
+                value="Estudia"
+                checked={usuarioForm.estudio_o_trabajo_actual === "Estudia"}
+                onChange={handleChangeUsuario}
+              />{" "}
+              Estudia
+            </label>
           </div>
+
+          <label style={{ fontWeight: "600" }}>
+            Departamento: <span style={{ color: "red" }}>*</span>
+          </label>
+          <input
+            type="text"
+            name="departamento"
+            placeholder="Departamento"
+            value={usuarioForm.departamento}
+            onChange={handleChangeUsuario}
+            style={inputStyle}
+          />
         </>
       )}
 
@@ -366,7 +421,7 @@ export default function Register() {
             htmlFor="nombreRepresentante"
             style={{ marginBottom: 6, display: "block", fontWeight: "600" }}
           >
-            Nombres y Apellidos de Representante Legal:
+            Nombres y Apellidos de Representante Legal: <span style={{ color: "red" }}>*</span>
           </label>
           <input
             id="nombreRepresentante"
@@ -378,50 +433,47 @@ export default function Register() {
             style={inputStyle}
           />
 
-          <div
-            style={{
-              paddingRight: 8,
-              marginBottom: 12,
-              display: "flex",
-              flexDirection: "column",
-              gap: 10,
-            }}
-          >
-            <label style={{ fontWeight: "600" }}>Nombre Empresa:</label>
-            <input
-              id="nombreEmpresa"
-              type="text"
-              placeholder="Nombre Empresa"
-              value={empresaForm.nombreEmpresa}
-              onChange={handleChangeEmpresa}
-              name="nombreEmpresa"
-              style={inputStyle}
-            />
+          <label style={{ fontWeight: "600" }}>
+            Nombre Empresa: <span style={{ color: "red" }}>*</span>
+          </label>
+          <input
+            id="nombreEmpresa"
+            type="text"
+            placeholder="Nombre Empresa"
+            value={empresaForm.nombreEmpresa}
+            onChange={handleChangeEmpresa}
+            name="nombreEmpresa"
+            style={inputStyle}
+          />
 
-            <label style={{ fontWeight: "600" }}>Dirección Empresa:</label>
-            <input
-              id="direccionEmpresa"
-              type="text"
-              placeholder="Dirección Empresa"
-              value={empresaForm.direccionEmpresa}
-              onChange={handleChangeEmpresa}
-              name="direccionEmpresa"
-              style={inputStyle}
-            />
+          <label style={{ fontWeight: "600" }}>
+            Dirección Empresa: <span style={{ color: "red" }}>*</span>
+          </label>
+          <input
+            id="direccionEmpresa"
+            type="text"
+            placeholder="Dirección Empresa"
+            value={empresaForm.direccionEmpresa}
+            onChange={handleChangeEmpresa}
+            name="direccionEmpresa"
+            style={inputStyle}
+          />
 
-            <label style={{ fontWeight: "600" }}>Teléfono Empresa:</label>
-            <input
-              id="telefonoEmpresa"
-              type="text"
-              placeholder="Teléfono Empresa"
-              value={empresaForm.telefonoEmpresa}
-              onChange={handleChangeEmpresa}
-              name="telefonoEmpresa"
-              style={inputStyle}
-            />
-          </div>
+          <label style={{ fontWeight: "600" }}>
+            Teléfono Empresa: <span style={{ color: "red" }}>*</span>
+          </label>
+          <input
+            id="telefonoEmpresa"
+            type="text"
+            placeholder="Teléfono Empresa"
+            value={empresaForm.telefonoEmpresa}
+            onChange={handleChangeEmpresa}
+            name="telefonoEmpresa"
+            style={inputStyle}
+          />
         </>
       )}
+
 
       {(tipoUsuario === "Persona Natural" || tipoUsuario === "Empresa") && (
         <>

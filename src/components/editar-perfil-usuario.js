@@ -19,13 +19,8 @@ export default function EditarPerfilUsuario({ userId, onClose }) {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState(null);
 
-  // Validación
   const [validationErrors, setValidationErrors] = useState({});
-
-  // Estado para preview imagen
   const [imagenBase64, setImagenBase64] = useState(null);
-
-  // Estado para mostrar modal éxito
   const [showSuccess, setShowSuccess] = useState(false);
 
   useEffect(() => {
@@ -35,7 +30,7 @@ export default function EditarPerfilUsuario({ userId, onClose }) {
       return;
     }
 
-    fetch(`http://192.168.1.6:3001/perfil-usuario/${userId}`)
+    fetch(`http://192.168.101.5:3001/perfil-usuario/${userId}`)
       .then((res) => {
         if (!res.ok) throw new Error("No se pudo cargar el perfil");
         return res.json();
@@ -54,7 +49,6 @@ export default function EditarPerfilUsuario({ userId, onClose }) {
     setValidationErrors((ve) => ({ ...ve, [name]: false }));
   };
 
-  // Convierte archivo a base64
   const manejarArchivo = (e) => {
     const archivo = e.target.files[0];
     if (!archivo) return;
@@ -90,7 +84,7 @@ export default function EditarPerfilUsuario({ userId, onClose }) {
     setSaving(true);
     try {
       const res = await fetch(
-        `http://192.168.1.6:3001/perfil-usuario/${userId}`,
+        `http://192.168.101.5:3001/perfil-usuario/${userId}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -155,7 +149,6 @@ export default function EditarPerfilUsuario({ userId, onClose }) {
 
   return (
     <>
-      {/* Modal éxito arriba del modal principal */}
       {showSuccess && (
         <div
           style={{
@@ -231,20 +224,13 @@ export default function EditarPerfilUsuario({ userId, onClose }) {
               display: "flex",
               flexDirection: "column",
               gap: 16,
+              maxHeight: 400,
+              overflowY: "auto",
             }}
           >
             {leftFields.map(({ name, label, required }) => (
-              <div
-                key={name}
-                style={{ display: "flex", flexDirection: "column" }}
-              >
-                <label
-                  htmlFor={name}
-                  style={{
-                    marginBottom: 6,
-                    color: "#000000",
-                  }}
-                >
+              <div key={name} style={{ display: "flex", flexDirection: "column" }}>
+                <label htmlFor={name} style={{ marginBottom: 6, color: "#000000" }}>
                   {renderLabel(label, required, name)}
                 </label>
                 <input
@@ -256,9 +242,7 @@ export default function EditarPerfilUsuario({ userId, onClose }) {
                   onChange={handleChange}
                   style={{
                     backgroundColor: "#F0F5E1",
-                    border: validationErrors[name]
-                      ? "2px solid red"
-                      : "1.5px solid #A9C88B",
+                    border: validationErrors[name] ? "2px solid red" : "1.5px solid #A9C88B",
                     borderRadius: 6,
                     padding: "10px 14px",
                     color: "#3B5311",
@@ -270,6 +254,33 @@ export default function EditarPerfilUsuario({ userId, onClose }) {
                 />
               </div>
             ))}
+
+            {/* Resumen debajo */}
+            <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
+              <label htmlFor="resumen" style={{ color: "#000000", fontWeight: "600" }}>
+                Resumen
+              </label>
+              <textarea
+                id="resumen"
+                name="resumen"
+                placeholder="Resumen"
+                value={form.resumen}
+                onChange={handleChange}
+                rows={4}
+                style={{
+                  backgroundColor: "#F0F5E1",
+                  border: "1.5px solid #A9C88B",
+                  borderRadius: 6,
+                  padding: "10px 14px",
+                  color: "#3B5311",
+                  fontWeight: "500",
+                  fontSize: 14,
+                  outline: "none",
+                  resize: "vertical",
+                  boxShadow: "none",
+                }}
+              />
+            </div>
           </div>
 
           {/* Columna derecha */}
@@ -283,17 +294,8 @@ export default function EditarPerfilUsuario({ userId, onClose }) {
             }}
           >
             {rightFields.map(({ name, label, required }) => (
-              <div
-                key={name}
-                style={{ display: "flex", flexDirection: "column" }}
-              >
-                <label
-                  htmlFor={name}
-                  style={{
-                    marginBottom: 6,
-                    color: "#000000",
-                  }}
-                >
+              <div key={name} style={{ display: "flex", flexDirection: "column" }}>
+                <label htmlFor={name} style={{ marginBottom: 6, color: "#000000" }}>
                   {renderLabel(label, required, name)}
                 </label>
                 <input
@@ -305,9 +307,7 @@ export default function EditarPerfilUsuario({ userId, onClose }) {
                   onChange={handleChange}
                   style={{
                     backgroundColor: "#F0F5E1",
-                    border: validationErrors[name]
-                      ? "2px solid red"
-                      : "1.5px solid #A9C88B",
+                    border: validationErrors[name] ? "2px solid red" : "1.5px solid #A9C88B",
                     borderRadius: 6,
                     padding: "10px 14px",
                     color: "#3B5311",
@@ -322,10 +322,7 @@ export default function EditarPerfilUsuario({ userId, onClose }) {
 
             {/* Subir foto */}
             <div style={{ display: "flex", flexDirection: "column" }}>
-              <label
-                htmlFor="fileUpload"
-                style={{ marginBottom: 6, color: "#000000" }}
-              >
+              <label htmlFor="fileUpload" style={{ marginBottom: 6, color: "#000000" }}>
                 Subir foto
               </label>
 
@@ -357,110 +354,123 @@ export default function EditarPerfilUsuario({ userId, onClose }) {
               >
                 📷 Subir Foto
               </button>
+
+              {/* Aquí agregamos la imagen preview */}
+              {imagenBase64 && (
+                <div
+                  style={{
+                    position: "relative",
+                    display: "inline-block",
+                    marginTop: 12,
+                  }}
+                >
+                  <img
+                    src={imagenBase64}
+                    alt="Foto Personal"
+                    style={{
+                      maxWidth: "100%",
+                      maxHeight: 150,
+                      borderRadius: 8,
+                      boxShadow: "0 2px 8px rgba(107, 139, 69, 0.3)",
+                      display: "block",
+                    }}
+                  />
+                  {/* Botón para quitar foto */}
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setImagenBase64(null);
+                      setForm((f) => ({ ...f, foto_personal: "" }));
+                    }}
+                    style={{
+                      position: "absolute",
+                      top: 6,
+                      right: 6,
+                      backgroundColor: "#FF6B6B",
+                      border: "none",
+                      borderRadius: "50%",
+                      width: 24,
+                      height: 24,
+                      color: "white",
+                      fontWeight: "bold",
+                      cursor: "pointer",
+                      lineHeight: "24px",
+                      textAlign: "center",
+                      padding: 0,
+                      userSelect: "none",
+                      boxShadow: "0 0 6px rgba(255, 107, 107, 0.7)",
+                    }}
+                    title="Quitar foto"
+                    aria-label="Quitar foto"
+                  >
+                    ×
+                  </button>
+                </div>
+              )}
+
+              {/* Botones */}
+              <div
+                style={{
+                  flexBasis: "100%",
+                  display: "flex",
+                  gap: 12,
+                  marginTop: 35,
+                }}
+              >
+                <button
+                  type="submit"
+                  disabled={saving}
+                  style={{
+                    flex: 1,
+                    backgroundColor: saving ? "#A1B682" : "#6B8B45",
+                    color: "#E6F0D4",
+                    fontWeight: "700",
+                    padding: "12px 0",
+                    borderRadius: 8,
+                    border: "none",
+                    cursor: saving ? "not-allowed" : "pointer",
+                    boxShadow: saving
+                      ? "none"
+                      : "0 4px 10px rgba(107, 139, 69, 0.6)",
+                    transition: "background-color 0.3s ease",
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!saving) e.currentTarget.style.backgroundColor = "#7DA253";
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!saving) e.currentTarget.style.backgroundColor = "#6B8B45";
+                  }}
+                >
+                  {saving ? "Guardando..." : "Guardar"}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={onClose}
+                  disabled={saving}
+                  style={{
+                    flex: 1,
+                    backgroundColor: "#7C8B53",
+                    color: "#E6F0D4",
+                    fontWeight: "700",
+                    padding: "12px 0",
+                    borderRadius: 8,
+                    border: "none",
+                    cursor: saving ? "not-allowed" : "pointer",
+                    boxShadow: "0 2px 8px rgba(124, 139, 83, 0.5)",
+                    transition: "background-color 0.3s ease",
+                  }}
+                  onMouseEnter={(e) => {
+                    if (!saving) e.currentTarget.style.backgroundColor = "#8FAE69";
+                  }}
+                  onMouseLeave={(e) => {
+                    if (!saving) e.currentTarget.style.backgroundColor = "#7C8B53";
+                  }}
+                >
+                  Cancelar
+                </button>
+              </div>
             </div>
-          </div>
-
-          {/* Resumen ocupa todo el ancho */}
-          <div
-            style={{
-              flexBasis: "100%",
-              display: "flex",
-              flexDirection: "column",
-              gap: 6,
-            }}
-          >
-            <label
-              htmlFor="resumen"
-              style={{
-                color: "#000000",
-                fontWeight: "600",
-              }}
-            >
-              Resumen
-            </label>
-            <textarea
-              id="resumen"
-              name="resumen"
-              placeholder="Resumen"
-              value={form.resumen}
-              onChange={handleChange}
-              rows={4}
-              style={{
-                backgroundColor: "#F0F5E1",
-                border: "1.5px solid #A9C88B",
-                borderRadius: 6,
-                padding: "10px 14px",
-                color: "#3B5311",
-                fontWeight: "500",
-                fontSize: 14,
-                outline: "none",
-                resize: "vertical",
-                boxShadow: "none",
-              }}
-            />
-          </div>
-
-          {/* Botones */}
-          <div
-            style={{
-              flexBasis: "100%",
-              display: "flex",
-              gap: 12,
-              marginTop: 20,
-            }}
-          >
-            <button
-              type="submit"
-              disabled={saving}
-              style={{
-                flex: 1,
-                backgroundColor: saving ? "#A1B682" : "#6B8B45",
-                color: "#E6F0D4",
-                fontWeight: "700",
-                padding: "12px 0",
-                borderRadius: 8,
-                border: "none",
-                cursor: saving ? "not-allowed" : "pointer",
-                boxShadow: saving
-                  ? "none"
-                  : "0 4px 10px rgba(107, 139, 69, 0.6)",
-                transition: "background-color 0.3s ease",
-              }}
-              onMouseEnter={(e) => {
-                if (!saving) e.currentTarget.style.backgroundColor = "#7DA253";
-              }}
-              onMouseLeave={(e) => {
-                if (!saving) e.currentTarget.style.backgroundColor = "#6B8B45";
-              }}
-            >
-              {saving ? "Guardando..." : "Guardar"}
-            </button>
-
-            <button
-              type="button"
-              onClick={onClose}
-              disabled={saving}
-              style={{
-                flex: 1,
-                backgroundColor: "#7C8B53",
-                color: "#E6F0D4",
-                fontWeight: "700",
-                padding: "12px 0",
-                borderRadius: 8,
-                border: "none",
-                cursor: saving ? "not-allowed" : "pointer",
-                boxShadow: "0 2px 8px rgba(124, 139, 83, 0.5)",
-                transition: "background-color 0.3s ease",
-              }}
-              onMouseEnter={(e) => {
-                if (!saving) e.currentTarget.style.backgroundColor = "#8FAE69";
-              }}
-              onMouseLeave={(e) => {
-                if (!saving) e.currentTarget.style.backgroundColor = "#7C8B53";
-              }}
-            >
-              Cancelar
-            </button>
           </div>
         </form>
       </ModalWrapper>
