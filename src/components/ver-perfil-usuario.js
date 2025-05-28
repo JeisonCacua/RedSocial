@@ -36,20 +36,27 @@ export default function VerPerfilUsuario({ userId, onClose }) {
 
   // Función para eliminar publicación
   const borrarPublicacion = async (id) => {
-    try {
-      const res = await fetch(`http://192.168.101.5:3001/publicaciones/${id}`, {
-        method: "DELETE",
-      });
-      if (!res.ok) throw new Error("Error al eliminar");
+  console.log("ID recibido para borrar:", id);
+  if (!id) {
+    alert("No se recibió un ID válido para borrar");
+    return;
+  }
+  try {
+    const res = await fetch(`http://192.168.101.5:3001/publicaciones/${id}`, {
+      method: "DELETE",
+    });
+    if (!res.ok) throw new Error("Error al eliminar");
 
-      setPublicaciones((prev) => prev.filter((pub) => pub._id !== id));
-      setConfirmDeleteId(null);
-      window.location.reload();
-    } catch (error) {
-      alert("No se pudo eliminar la publicación");
-      setConfirmDeleteId(null);
-    }
-  };
+    setPublicaciones((prev) => prev.filter((pub) => pub._id !== id));
+    setConfirmDeleteId(null);
+    
+  } catch (error) {
+    alert("No se pudo eliminar la publicación");
+    console.error("Error en borrarPublicacion:", error);
+    setConfirmDeleteId(null);
+  }
+};
+
 
   if (loadingPerfil)
     return <ModalWrapper onClose={onClose}>Cargando perfil...</ModalWrapper>;

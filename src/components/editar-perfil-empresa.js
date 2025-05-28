@@ -78,7 +78,7 @@ export default function EditarPerfilEmpresa({ userId, onClose }) {
     setSaving(true);
     try {
       const res = await fetch(
-        `http://192.168.1.6:3001/perfil-empresa/${userId}`,
+        `http://192.168.101.5:3001/perfil-empresa/${userId}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },

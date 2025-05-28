@@ -153,7 +153,6 @@ export default function Register() {
       }
     }
 
-
     let nombreParaBackend =
       tipoUsuario === "Persona Natural"
         ? usuarioForm.nombreCompleto
@@ -248,7 +247,7 @@ export default function Register() {
   return (
     <div
       style={{
-       width: tipoUsuario === "Persona Natural" ? "350px" : "350px",
+        width: tipoUsuario === "Persona Natural" ? "350px" : "350px",
         maxHeight: 900,
         margin: "auto",
         padding: 20,
@@ -285,7 +284,8 @@ export default function Register() {
             htmlFor="nombreCompleto"
             style={{ marginBottom: 6, display: "block", fontWeight: "600" }}
           >
-            Nombre y Apellido (Completos): <span style={{ color: "red" }}>*</span>
+            Nombre y Apellido (Completos):{" "}
+            <span style={{ color: "red" }}>*</span>
           </label>
           <input
             id="nombreCompleto"
@@ -306,6 +306,11 @@ export default function Register() {
             placeholder="Edad"
             value={usuarioForm.edad}
             onChange={handleChangeUsuario}
+            onKeyPress={(e) => {
+              if (!/[0-9]/.test(e.key)) {
+                e.preventDefault();
+              }
+            }}
             style={inputStyle}
           />
 
@@ -353,17 +358,20 @@ export default function Register() {
 
           <label style={{ fontWeight: "600" }}>Número:</label>
           <input
-            type="text"
+            type="tel"
             name="numero"
             placeholder="Número"
             value={usuarioForm.numero}
             onChange={handleChangeUsuario}
+            onKeyPress={(e) => {
+              if (!/[0-9]/.test(e.key)) {
+                e.preventDefault();
+              }
+            }}
             style={inputStyle}
           />
 
-          <label style={{ fontWeight: "600" }}>
-            Habilidades:
-          </label>
+          <label style={{ fontWeight: "600" }}>Habilidades:</label>
           <input
             type="text"
             name="habilidades"
@@ -373,33 +381,17 @@ export default function Register() {
             style={inputStyle}
           />
 
-
-
-          <label style={{ marginTop: 10, fontWeight: "600" }}>
+          <label style={{ fontWeight: "600", marginTop: 10 }}>
             ¿Trabaja o estudia? <span style={{ color: "red" }}>*</span>
           </label>
-          <div style={{ display: "flex", gap: 20, marginBottom: 12 }}>
-            <label>
-              <input
-                type="radio"
-                name="trabajaEstudia"
-                value="Trabaja"
-                checked={usuarioForm.estudio_o_trabajo_actual === "Trabaja"}
-                onChange={handleChangeUsuario}
-              />{" "}
-              Trabaja
-            </label>
-            <label>
-              <input
-                type="radio"
-                name="trabajaEstudia"
-                value="Estudia"
-                checked={usuarioForm.estudio_o_trabajo_actual === "Estudia"}
-                onChange={handleChangeUsuario}
-              />{" "}
-              Estudia
-            </label>
-          </div>
+          <input
+            type="text"
+            name="estudio_o_trabajo_actual"
+            placeholder="Escriba aquí que estudia o trabaja actualmente"
+            value={usuarioForm.estudio_o_trabajo_actual}
+            onChange={handleChangeUsuario}
+            style={inputStyle}
+          />
 
           <label style={{ fontWeight: "600" }}>
             Departamento: <span style={{ color: "red" }}>*</span>
@@ -421,7 +413,8 @@ export default function Register() {
             htmlFor="nombreRepresentante"
             style={{ marginBottom: 6, display: "block", fontWeight: "600" }}
           >
-            Nombres y Apellidos de Representante Legal: <span style={{ color: "red" }}>*</span>
+            Nombres y Apellidos de Representante Legal:{" "}
+            <span style={{ color: "red" }}>*</span>
           </label>
           <input
             id="nombreRepresentante"
@@ -464,16 +457,20 @@ export default function Register() {
           </label>
           <input
             id="telefonoEmpresa"
-            type="text"
+            type="tel"
             placeholder="Teléfono Empresa"
             value={empresaForm.telefonoEmpresa}
             onChange={handleChangeEmpresa}
+            onKeyPress={(e) => {
+              if (!/[0-9]/.test(e.key)) {
+                e.preventDefault();
+              }
+            }}
             name="telefonoEmpresa"
             style={inputStyle}
           />
         </>
       )}
-
 
       {(tipoUsuario === "Persona Natural" || tipoUsuario === "Empresa") && (
         <>
@@ -528,9 +525,7 @@ export default function Register() {
         CREAR CUENTA
       </button>
 
-      {errorMessage && (
-        <p style={{ color: "red", marginTop: 10 }}>{errorMessage}</p>
-      )}
+      {errorMessage && <p style={{ color: "red", marginTop: 10 }}>{errorMessage}</p>}
       {successMessage && (
         <p style={{ color: "lightgreen", marginTop: 10 }}>{successMessage}</p>
       )}
