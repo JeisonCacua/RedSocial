@@ -1,70 +1,50 @@
-# Getting Started with Create React App
+Red Social
+Para ejecutar el proyecto, deben abrir 3 consolas de comandos (CMD):
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Una para MongoDB
 
-## Available Scripts
+Una para el backend
 
-In the project directory, you can run:
+Una para el frontend
 
-### `npm start`
+Importante: En el proyecto deben reemplazar todas las direcciones IP que aparezcan en las páginas por la IP de su equipo. Además, en MongoDB Compass la base de datos utilizada se llama webSocial.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+Para obtener la IP de su equipo, abran una consola CMD y ejecuten el comando:
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+ipconfig
+Luego, copien el valor que aparece en Dirección IPv4.
 
-### `npm test`
+Pasos para iniciar cada terminal:
+Primera terminal (MongoDB):
+Ejecutar el siguiente comando para iniciar el servidor de MongoDB:
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+mongod
+(Esto se hace en CMD desde el escritorio)
 
-### `npm run build`
+Segunda terminal (Backend):
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+Instalar las dependencias necesarias:
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+npm install express mongoose cors
+Entrar a la carpeta del servidor:
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+cd server
+Iniciar el backend:
 
-### `npm run eject`
+node index.js
+(Todo esto se hace en CMD desde la carpeta del proyecto)
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+Tercera terminal (Frontend):
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+Instalar las dependencias:
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+npm install
+Iniciar la aplicación frontend:
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+npm start
+(También desde la carpeta del proyecto)
 
-## Learn More
+Enlace de referencia para la descarga y configuración de MongoDB Compass
+Para descargar e instalar MongoDB Compass:
+https://youtu.be/eKXIxSZrJfw?si=3sILflpC95S-en1H
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
