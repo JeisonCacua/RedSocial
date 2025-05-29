@@ -23,7 +23,7 @@ export default function SubirPublicacion({ userId, onNuevaPublicacion }) {
 
     setLoading(true);
     try {
-      const response = await fetch("http://192.168.101.5:3001/publicaciones", {
+      const response = await fetch("http://192.168.80.93:3001/publicaciones", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -129,50 +129,55 @@ export default function SubirPublicacion({ userId, onNuevaPublicacion }) {
       </div>
 
       {/* Vista previa imagen */}
-     {/* Vista previa imagen con botón para quitar */}
-{imagenBase64 && (
-  <div style={{ marginTop: 10, position: "relative", display: "inline-block" }}>
-    <img
-      src={imagenBase64}
-      alt="Vista previa"
-      style={{
-        maxWidth: "200px",
-        maxHeight: "200px",
-        width: "auto",
-        height: "auto",
-        borderRadius: 8,
-        display: "block",
-      }}
-    />
-    <button
-      type="button"
-      onClick={() => setImagenBase64(null)}
-      style={{
-        position: "absolute",
-        top: 6,
-        right: -6, // un poco más a la derecha
-        backgroundColor: "#FF6B6B",
-        border: "none",
-        borderRadius: "50%",
-        width: 24,
-        height: 24,
-        color: "white",
-        fontWeight: "bold",
-        cursor: "pointer",
-        lineHeight: "24px",
-        textAlign: "center",
-        padding: 0,
-        userSelect: "none",
-        boxShadow: "0 0 6px rgba(255, 107, 107, 0.7)",
-      }}
-      title="Quitar foto"
-      aria-label="Quitar foto"
-    >
-      ×
-    </button>
-  </div>
-)}
-
+      {/* Vista previa imagen con botón para quitar */}
+      {imagenBase64 && (
+        <div
+          style={{
+            marginTop: 10,
+            position: "relative",
+            display: "inline-block",
+          }}
+        >
+          <img
+            src={imagenBase64}
+            alt="Vista previa"
+            style={{
+              maxWidth: "200px",
+              maxHeight: "200px",
+              width: "auto",
+              height: "auto",
+              borderRadius: 8,
+              display: "block",
+            }}
+          />
+          <button
+            type="button"
+            onClick={() => setImagenBase64(null)}
+            style={{
+              position: "absolute",
+              top: 6,
+              right: -6, // un poco más a la derecha
+              backgroundColor: "#FF6B6B",
+              border: "none",
+              borderRadius: "50%",
+              width: 24,
+              height: 24,
+              color: "white",
+              fontWeight: "bold",
+              cursor: "pointer",
+              lineHeight: "24px",
+              textAlign: "center",
+              padding: 0,
+              userSelect: "none",
+              boxShadow: "0 0 6px rgba(255, 107, 107, 0.7)",
+            }}
+            title="Quitar foto"
+            aria-label="Quitar foto"
+          >
+            ×
+          </button>
+        </div>
+      )}
     </div>
   );
 }

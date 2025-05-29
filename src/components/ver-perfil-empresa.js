@@ -13,7 +13,7 @@ export default function VerPerfilEmpresa({ userId, onClose }) {
   const [confirmDeleteId, setConfirmDeleteId] = useState(null);
 
   useEffect(() => {
-    fetch(`http://192.168.101.5:3001/perfil-empresa/${userId}`)
+    fetch(`http://192.168.80.93:3001/perfil-empresa/${userId}`)
       .then((res) => {
         if (!res.ok) throw new Error("No se pudo cargar el perfil");
         return res.json();
@@ -22,7 +22,7 @@ export default function VerPerfilEmpresa({ userId, onClose }) {
       .catch((e) => setError(e.message))
       .finally(() => setLoadingPerfil(false));
 
-    fetch(`http://192.168.101.5:3001/publicaciones`)
+    fetch(`http://192.168.80.93:3001/publicaciones`)
       .then((res) => res.json())
       .then((data) => {
         const publicacionesUsuario = data.filter(
@@ -34,11 +34,10 @@ export default function VerPerfilEmpresa({ userId, onClose }) {
       .finally(() => setLoadingPublicaciones(false));
   }, [userId]);
 
-
   // Función para eliminar publicación
   const borrarPublicacion = async (id) => {
     try {
-      const res = await fetch(`http://192.168.101.5:3001/publicaciones/${id}`, {
+      const res = await fetch(`http://192.168.80.93:3001/publicaciones/${id}`, {
         method: "DELETE",
       });
       if (!res.ok) throw new Error("Error al eliminar");

@@ -30,7 +30,7 @@ export default function EditarPerfilUsuario({ userId, onClose }) {
       return;
     }
 
-    fetch(`http://192.168.101.5:3001/perfil-usuario/${userId}`)
+    fetch(`http://192.168.80.93:3001/perfil-usuario/${userId}`)
       .then((res) => {
         if (!res.ok) throw new Error("No se pudo cargar el perfil");
         return res.json();
@@ -84,7 +84,7 @@ export default function EditarPerfilUsuario({ userId, onClose }) {
     setSaving(true);
     try {
       const res = await fetch(
-        `http://192.168.101.5:3001/perfil-usuario/${userId}`,
+        `http://192.168.80.93:3001/perfil-usuario/${userId}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -229,8 +229,14 @@ export default function EditarPerfilUsuario({ userId, onClose }) {
             }}
           >
             {leftFields.map(({ name, label, required }) => (
-              <div key={name} style={{ display: "flex", flexDirection: "column" }}>
-                <label htmlFor={name} style={{ marginBottom: 6, color: "#000000" }}>
+              <div
+                key={name}
+                style={{ display: "flex", flexDirection: "column" }}
+              >
+                <label
+                  htmlFor={name}
+                  style={{ marginBottom: 6, color: "#000000" }}
+                >
                   {renderLabel(label, required, name)}
                 </label>
                 <input
@@ -242,7 +248,9 @@ export default function EditarPerfilUsuario({ userId, onClose }) {
                   onChange={handleChange}
                   style={{
                     backgroundColor: "#F0F5E1",
-                    border: validationErrors[name] ? "2px solid red" : "1.5px solid #A9C88B",
+                    border: validationErrors[name]
+                      ? "2px solid red"
+                      : "1.5px solid #A9C88B",
                     borderRadius: 6,
                     padding: "10px 14px",
                     color: "#3B5311",
@@ -257,7 +265,10 @@ export default function EditarPerfilUsuario({ userId, onClose }) {
 
             {/* Resumen debajo */}
             <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-              <label htmlFor="resumen" style={{ color: "#000000", fontWeight: "600" }}>
+              <label
+                htmlFor="resumen"
+                style={{ color: "#000000", fontWeight: "600" }}
+              >
                 Resumen
               </label>
               <textarea
@@ -294,8 +305,14 @@ export default function EditarPerfilUsuario({ userId, onClose }) {
             }}
           >
             {rightFields.map(({ name, label, required }) => (
-              <div key={name} style={{ display: "flex", flexDirection: "column" }}>
-                <label htmlFor={name} style={{ marginBottom: 6, color: "#000000" }}>
+              <div
+                key={name}
+                style={{ display: "flex", flexDirection: "column" }}
+              >
+                <label
+                  htmlFor={name}
+                  style={{ marginBottom: 6, color: "#000000" }}
+                >
                   {renderLabel(label, required, name)}
                 </label>
                 <input
@@ -307,7 +324,9 @@ export default function EditarPerfilUsuario({ userId, onClose }) {
                   onChange={handleChange}
                   style={{
                     backgroundColor: "#F0F5E1",
-                    border: validationErrors[name] ? "2px solid red" : "1.5px solid #A9C88B",
+                    border: validationErrors[name]
+                      ? "2px solid red"
+                      : "1.5px solid #A9C88B",
                     borderRadius: 6,
                     padding: "10px 14px",
                     color: "#3B5311",
@@ -322,7 +341,10 @@ export default function EditarPerfilUsuario({ userId, onClose }) {
 
             {/* Subir foto */}
             <div style={{ display: "flex", flexDirection: "column" }}>
-              <label htmlFor="fileUpload" style={{ marginBottom: 6, color: "#000000" }}>
+              <label
+                htmlFor="fileUpload"
+                style={{ marginBottom: 6, color: "#000000" }}
+              >
                 Subir foto
               </label>
 
@@ -435,10 +457,12 @@ export default function EditarPerfilUsuario({ userId, onClose }) {
                     transition: "background-color 0.3s ease",
                   }}
                   onMouseEnter={(e) => {
-                    if (!saving) e.currentTarget.style.backgroundColor = "#7DA253";
+                    if (!saving)
+                      e.currentTarget.style.backgroundColor = "#7DA253";
                   }}
                   onMouseLeave={(e) => {
-                    if (!saving) e.currentTarget.style.backgroundColor = "#6B8B45";
+                    if (!saving)
+                      e.currentTarget.style.backgroundColor = "#6B8B45";
                   }}
                 >
                   {saving ? "Guardando..." : "Guardar"}
@@ -461,10 +485,12 @@ export default function EditarPerfilUsuario({ userId, onClose }) {
                     transition: "background-color 0.3s ease",
                   }}
                   onMouseEnter={(e) => {
-                    if (!saving) e.currentTarget.style.backgroundColor = "#8FAE69";
+                    if (!saving)
+                      e.currentTarget.style.backgroundColor = "#8FAE69";
                   }}
                   onMouseLeave={(e) => {
-                    if (!saving) e.currentTarget.style.backgroundColor = "#7C8B53";
+                    if (!saving)
+                      e.currentTarget.style.backgroundColor = "#7C8B53";
                   }}
                 >
                   Cancelar

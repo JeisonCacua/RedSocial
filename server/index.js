@@ -1,6 +1,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
+const bcrypt = require("bcrypt");
 
 const app = express();
 app.use(express.json({ limit: "10mb" }));
@@ -17,9 +18,8 @@ const PerfilUsuario = require("./models/PerfilUsuario");
 const PerfilEmpresa = require("./models/PerfilEmpresa");
 const Publicacion = require("./models/Publicacion");
 
-// Ruta para registrar usuarios
+// Registro de usuario con contraseña hasheada
 app.post("/register", async (req, res) => {
-  console.log("Datos recibidos en /register:", req.body);
   const { nombre, correo, tipo_usuario, contraseña, confirmarContraseña } =
     req.body;
 
@@ -49,7 +49,17 @@ app.post("/register", async (req, res) => {
       return res.status(400).json({ message: "Correo ya registrado" });
     }
 
-    const newUser = new User({ nombre, correo, tipo_usuario, contraseña });
+    // Hashear la contraseña antes de guardar
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(contraseña, saltRounds);
+
+    const newUser = new User({
+      nombre,
+      correo,
+      tipo_usuario,
+      contraseña: hashedPassword,
+    });
+
     await newUser.save();
 
     const defaultUserImage = "/perfil.jpg";
@@ -79,16 +89,25 @@ app.post("/register", async (req, res) => {
   }
 });
 
-// Ruta para login
+// Login con comparación de hash
 app.post("/login", async (req, res) => {
   const { correo, contraseña } = req.body;
+
   try {
-    const user = await User.findOne({ correo, contraseña });
+    const user = await User.findOne({ correo });
     if (!user) {
       return res
         .status(401)
         .json({ message: "Usuario o contraseña incorrecta" });
     }
+
+    const passwordMatch = await bcrypt.compare(contraseña, user.contraseña);
+    if (!passwordMatch) {
+      return res
+        .status(401)
+        .json({ message: "Usuario o contraseña incorrecta" });
+    }
+
     res.json({ message: "Inicio de sesión exitoso", user });
   } catch (error) {
     console.error(error);

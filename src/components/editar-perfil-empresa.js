@@ -23,7 +23,7 @@ export default function EditarPerfilEmpresa({ userId, onClose }) {
       return;
     }
 
-    fetch(`http://192.168.101.5:3001/perfil-empresa/${userId}`)
+    fetch(`http://192.168.80.93:3001/perfil-empresa/${userId}`)
       .then((res) => {
         if (!res.ok) throw new Error("No se pudo cargar el perfil");
         return res.json();
@@ -78,7 +78,7 @@ export default function EditarPerfilEmpresa({ userId, onClose }) {
     setSaving(true);
     try {
       const res = await fetch(
-        `http://192.168.101.5:3001/perfil-empresa/${userId}`,
+        `http://192.168.80.93:3001/perfil-empresa/${userId}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -318,7 +318,10 @@ export default function EditarPerfilEmpresa({ userId, onClose }) {
                   onClick={() => {
                     setImagenBase64(null);
                     setForm((f) => ({ ...f, foto_logo_empresa: "" }));
-                    setValidationErrors((ve) => ({ ...ve, foto_logo_empresa: false }));
+                    setValidationErrors((ve) => ({
+                      ...ve,
+                      foto_logo_empresa: false,
+                    }));
                   }}
                   style={{
                     position: "absolute",

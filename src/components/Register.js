@@ -159,7 +159,7 @@ export default function Register() {
         : empresaForm.nombreRepresentante;
 
     try {
-      const response = await fetch("http://192.168.101.5:3001/register", {
+      const response = await fetch("http://192.168.80.93:3001/register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -181,7 +181,7 @@ export default function Register() {
       const userId = data.userId;
 
       if (tipoUsuario === "Persona Natural") {
-        await fetch(`http://192.168.101.5:3001/perfil-usuario/${userId}`, {
+        await fetch(`http://192.168.80.93:3001/perfil-usuario/${userId}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -199,7 +199,7 @@ export default function Register() {
           }),
         });
       } else if (tipoUsuario === "Empresa") {
-        await fetch(`http://192.168.101.5:3001/perfil-empresa/${userId}`, {
+        await fetch(`http://192.168.80.93:3001/perfil-empresa/${userId}`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -525,7 +525,9 @@ export default function Register() {
         CREAR CUENTA
       </button>
 
-      {errorMessage && <p style={{ color: "red", marginTop: 10 }}>{errorMessage}</p>}
+      {errorMessage && (
+        <p style={{ color: "red", marginTop: 10 }}>{errorMessage}</p>
+      )}
       {successMessage && (
         <p style={{ color: "lightgreen", marginTop: 10 }}>{successMessage}</p>
       )}

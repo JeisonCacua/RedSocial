@@ -21,7 +21,7 @@ export default function Perfil({ userId }) {
       setPerfilExiste(false);
       return;
     }
-    fetch(`http://192.168.101.5:3001/perfil-existe/${userId}`)
+    fetch(`http://192.168.80.93:3001/perfil-existe/${userId}`)
       .then((res) => res.json())
       .then((data) => {
         setPerfilExiste(data.perfilExiste);
